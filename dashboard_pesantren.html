@@ -238,7 +238,7 @@
         loadDataSantri();
 
         async function loadDataPesantren() {
-            const { data } = await _supabase.from('pesantren').select('*').eq('id', pesantrenId).single();
+            const { data, error } = await _supabase.from('pesantren').select('*').eq('id', pesantrenId).single();
             if (data) {
                 document.getElementById('nav-nama-pesantren').innerText = data.nama_pesantren;
                 document.getElementById('profil-nama').value = data.nama_pesantren || '';
@@ -246,6 +246,51 @@
                 document.getElementById('profil-alamat').value = data.alamat || '';
                 localStorage.setItem('nama_pesantren', data.nama_pesantren);
                 namaPesantrenGlobal = data.nama_pesantren;
+
+                if (data.piagam_url) {
+                    document.getElementById('info-nspp-status').innerHTML = 'Status Piagam: <span class="text-success fw-bold">Sudah Diunggah (✓)</span>';
+                }
+
+                // Cek Validasi Kelengkapan (Profil, Piagam NSPP, & Password Default)
+                cekKewajibanAkun(data);
+            }
+        }
+
+        function cekKewajibanAkun(dataPesantren) {
+            let belumLengkap = false;
+            let pesanList = [];
+
+            // 1. Cek apakah profil dasar kosong/belum diisi
+            if (!dataPesantren.nama_pesantren || !dataPesantren.pengasuh || !dataPesantren.alamat) {
+                belumLengkap = true;
+                pesanList.push("Data profil pesantren (Nama, Pengasuh, atau Alamat) belum lengkap.");
+            }
+
+            // 2. Cek apakah piagam NSPP sudah diunggah
+            if (!dataPesantren.piagam_url) {
+                belumLengkap = true;
+                pesanList.push("Scan Piagam NSPP belum diunggah.");
+            }
+
+            // 3. Cek apakah masih menggunakan password default (asumsi password default bernilai '123456' atau sesuai kolom password di DB)
+            if (dataPesantren.password === 'rmi_nu.salatiga' || dataPesantren.password === 'pesantren2026') {
+                belumLengkap = true;
+                pesanList.push("Anda masih menggunakan password bawaan/default. Silakan ganti password melalui tombol 'Ganti Password'.");
+            }
+
+            const btnTambah = document.getElementById('btn-buka-tambah-santri');
+            const alertBox = document.getElementById('alert-peringatan-container');
+            const pesanPeringatan = document.getElementById('pesan-peringatan');
+
+            if (belumLengkap) {
+                btnTambah.disabled = true;
+                btnTambah.classList.add('disabled');
+                alertBox.style.display = 'block';
+                pesanPeringatan.innerHTML = `<b>Perhatian:</b> ${pesanList.join(' ')} Tombol tambah santri dikunci hingga persyaratan ini diselesaikan.`;
+            } else {
+                btnTambah.disabled = false;
+                btnTambah.classList.remove('disabled');
+                alertBox.style.display = 'none';
             }
         }
 
