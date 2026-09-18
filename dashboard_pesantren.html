@@ -654,9 +654,10 @@
             const nama_pesantren = document.getElementById('profil-nama').value;
             const pengasuh = document.getElementById('profil-pengasuh').value;
             const alamat = document.getElementById('profil-alamat').value;
+            const no_hp = document.getElementById('profil-no_hp').value;
             const fileNspp = document.getElementById('profil-nspp-file').files[0];
 
-            let updateData = { nama_pesantren, pengasuh, alamat };
+            let updateData = { nama_pesantren, pengasuh, alamat, no_hp, fileNspp };
 
             if (fileNspp) {
                 if (!cekFormatFile(fileNspp)) {
