@@ -6,6 +6,7 @@
     <title>Panel Panitia - MQK Salatiga 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app-config.js"></script>
 </head>
 <body class="bg-light">
 
@@ -76,9 +77,8 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://wcdykrvaxcdkbpmdzdct.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZHlrcnZheGNka2JwbWR6ZGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTUwNzIsImV4cCI6MjEwNTIzMTA3Mn0.W4D7k-sEF2wMwvrqfSwLobb-gFUelIVnmJ8l_xJudsg';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        if (!requireMqkRole('panitia')) throw new Error('Akses ditolak');
+        const _supabase = createMqkSupabase();
 
         let semuaDataPeserta = [];
 
@@ -90,9 +90,12 @@
                     pesantren ( nama_pesantren, nsp )
                 `);
 
-            if (error) return;
+            if (error) {
+                alert('Gagal memuat data peserta: ' + error.message);
+                return;
+            }
 
-            semuaDataPeserta = data;
+            semuaDataPeserta = data || [];
             renderTabel(semuaDataPeserta);
             hitungStatistik(semuaDataPeserta);
         }
@@ -107,8 +110,8 @@
             }
 
             data.forEach((item, index) => {
-                let tagFoto = item.foto_url ? `<img src="${item.foto_url}" width="35" height="45" class="rounded border object-fit-cover">` : `-`;
-                let linkKtp = item.file_identitas_url ? `<a href="${item.file_identitas_url}" target="_blank" class="btn btn-sm btn-outline-info">Lihat</a>` : `-`;
+                let tagFoto = item.foto_url ? `<img src="${item.foto_url}" width="35" height="45" class="rounded border object-fit-cover" alt="Foto">` : `-`;
+                let linkKtp = item.file_identitas_url ? `<a href="${item.file_identitas_url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info">Lihat</a>` : `-`;
                 let statusBadge = item.status_verifikasi === 'Valid' 
                     ? '<span class="badge bg-success">Valid</span>' 
                     : '<span class="badge bg-warning text-dark">Pending</span>';
@@ -121,7 +124,7 @@
                         <td>${item.nama_lengkap}</td>
                         <td class="text-center">${item.jenis_kelamin}</td>
                         <td class="text-center">${item.umur_per_18_okt} Thn</td>
-                        <td>${item.kategori_kitab}</td>
+                        <td>${item.kategori_kitab || '-'}</td>
                         <td class="text-center">${linkKtp}</td>
                         <td class="text-center">${statusBadge}</td>
                         <td class="text-center">
@@ -142,13 +145,14 @@
         async function ubahStatus(id, statusBaru) {
             const { error } = await _supabase.from('peserta').update({ status_verifikasi: statusBaru }).eq('id', id);
             if (!error) loadDataPanitia();
-            else alert('Gagal memperbarui status.');
+            else alert('Gagal memperbarui status: ' + error.message);
         }
 
         async function hapusPeserta(id) {
             if (confirm('Yakin ingin menghapus peserta ini?')) {
                 const { error } = await _supabase.from('peserta').delete().eq('id', id);
                 if (!error) loadDataPanitia();
+                else alert('Gagal menghapus peserta: ' + error.message);
             }
         }
 

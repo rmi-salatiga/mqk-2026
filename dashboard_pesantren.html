@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Supabase JS Client CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app-config.js"></script>
 </head>
 <body class="bg-light">
 
@@ -259,9 +260,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        const SUPABASE_URL = 'https://wcdykrvaxcdkbpmdzdct.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZHlrcnZheGNka2JwbWR6ZGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTUwNzIsImV4cCI6MjEwNTIzMTA3Mn0.W4D7k-sEF2wMwvrqfSwLobb-gFUelIVnmJ8l_xJudsg';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        if (!requireMqkRole('pesantren')) throw new Error('Akses ditolak');
+        const _supabase = createMqkSupabase();
 
         const pesantrenId = localStorage.getItem('pesantren_id');
         let namaPesantrenGlobal = localStorage.getItem('nama_pesantren') || 'Pesantren';
@@ -277,6 +277,10 @@
 
         async function loadDataPesantren() {
             const { data, error } = await _supabase.from('pesantren').select('*').eq('id', pesantrenId).single();
+            if (error) {
+                alert('Gagal memuat profil pesantren: ' + error.message);
+                return;
+            }
             if (data) {
                 document.getElementById('nav-nama-pesantren').innerText = data.nama_pesantren;
                 document.getElementById('profil-nama').value = data.nama_pesantren || '';
@@ -406,7 +410,10 @@
                 .select('*')
                 .eq('pesantren_id', pesantrenId);
 
-            if (error) return;
+            if (error) {
+                alert('Gagal memuat data santri: ' + error.message);
+                return;
+            }
 
             listSantriAktif = data || [];
             const tbody = document.getElementById('tabel-santri-body');
@@ -420,7 +427,7 @@
                 let tagFoto = santri.foto_url ? `<img src="${santri.foto_url}" width="35" height="45" class="rounded border object-fit-cover">` : `-`;
                 let linkKtp = santri.file_identitas_url ? `<a href="${santri.file_identitas_url}" target="_blank" class="btn btn-sm btn-outline-info">Lihat</a>` : `-`;
                 let ttl = `${santri.tempat_lahir || '-'}, ${formatTanggal(santri.tanggal_lahir)}`;
-                let kitabBersih = santri.kategori_kitab.replace(' [Tanpa Batas Usia]', '');
+                let kitabBersih = (santri.kategori_kitab || '-').replace(' [Tanpa Batas Usia]', '');
 
                 tbody.innerHTML += `
                     <tr>
@@ -624,14 +631,16 @@
                 if (filePasfoto) {
                     if (!cekFormatFile(filePasfoto)) { alert('Format pasfoto harus JPG/PNG!'); btnEdit.disabled = false; return; }
                     const compressedFoto = await kompresKeTargetKB(filePasfoto, 80);
-                    await _supabase.storage.from('pasfoto').upload(namaFileBase, compressedFoto, { upsert: true });
+                    const { error: fotoError } = await _supabase.storage.from('pasfoto').upload(namaFileBase, compressedFoto, { upsert: true });
+                    if (fotoError) throw new Error('Gagal upload pasfoto: ' + fotoError.message);
                     updateData.foto_url = _supabase.storage.from('pasfoto').getPublicUrl(namaFileBase).data.publicUrl;
                 }
 
                 if (fileKtp) {
                     if (!cekFormatFile(fileKtp)) { alert('Format KTP/KK harus JPG/PNG!'); btnEdit.disabled = false; return; }
                     const compressedKtp = await kompresKeTargetKB(fileKtp, 200);
-                    await _supabase.storage.from('ktp-kk').upload(namaFileBase, compressedKtp, { upsert: true });
+                    const { error: ktpError } = await _supabase.storage.from('ktp-kk').upload(namaFileBase, compressedKtp, { upsert: true });
+                    if (ktpError) throw new Error('Gagal upload KTP/KK: ' + ktpError.message);
                     updateData.file_identitas_url = _supabase.storage.from('ktp-kk').getPublicUrl(namaFileBase).data.publicUrl;
                 }
 
@@ -654,10 +663,10 @@
             const nama_pesantren = document.getElementById('profil-nama').value;
             const pengasuh = document.getElementById('profil-pengasuh').value;
             const alamat = document.getElementById('profil-alamat').value;
-            const no_hp = document.getElementById('profil-no_hp').value;
+            const no_hp = document.getElementById('profil-hp').value;
             const fileNspp = document.getElementById('profil-nspp-file').files[0];
 
-            let updateData = { nama_pesantren, pengasuh, alamat, no_hp, fileNspp };
+            let updateData = { nama_pesantren, pengasuh, alamat, no_hp };
 
             if (fileNspp) {
                 if (!cekFormatFile(fileNspp)) {
@@ -690,6 +699,7 @@
             if (confirm('Yakin ingin menghapus santri ini?')) {
                 const { error } = await _supabase.from('peserta').delete().eq('id', id);
                 if (!error) loadDataSantri();
+                else alert('Gagal menghapus santri: ' + error.message);
             }
         }
     </script>
