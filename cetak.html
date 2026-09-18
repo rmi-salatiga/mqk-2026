@@ -6,6 +6,7 @@
     <title>Pratinjau Surat Delegasi MQK 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app-config.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body { 
@@ -172,9 +173,8 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://wcdykrvaxcdkbpmdzdct.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZHlrcnZheGNka2JwbWR6ZGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTUwNzIsImV4cCI6MjEwNTIzMTA3Mn0.W4D7k-sEF2wMwvrqfSwLobb-gFUelIVnmJ8l_xJudsg';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        if (!requireMqkRole('pesantren')) throw new Error('Akses ditolak');
+        const _supabase = createMqkSupabase();
 
         const pesantrenId = localStorage.getItem('pesantren_id');
         let namaPesantrenFile = "Pondok_Pesantren";
@@ -194,7 +194,8 @@
         }
 
         async function loadDataCetak() {
-            const { data: pData } = await _supabase.from('pesantren').select('*').eq('id', pesantrenId).single();
+            const { data: pData, error: pError } = await _supabase.from('pesantren').select('*').eq('id', pesantrenId).single();
+            if (pError) throw new Error('Gagal memuat profil pesantren: ' + pError.message);
             if (pData) {
                 document.getElementById('lbl-nama-pesantren').innerText = pData.nama_pesantren || '-';
                 document.getElementById('lbl-nsp').innerText = pData.nsp || '-';
@@ -209,7 +210,8 @@
                 }
             }
 
-            const { data: pesertaList } = await _supabase.from('peserta').select('*').eq('pesantren_id', pesantrenId);
+            const { data: pesertaList, error: pesertaError } = await _supabase.from('peserta').select('*').eq('pesantren_id', pesantrenId);
+            if (pesertaError) throw new Error('Gagal memuat data santri: ' + pesertaError.message);
             
             const tbody = document.getElementById('tabel-rekap-delegasi');
             tbody.innerHTML = '';
@@ -224,7 +226,7 @@
                 const tanggalLahir = formatTanggal(item.tanggal_lahir);
                 const ttlGabung = `${tempatLahir}, ${tanggalLahir}`;
 
-                let namaKitabBersih = item.kategori_kitab.replace(' [Tanpa Batas Usia]', '');
+                let namaKitabBersih = (item.kategori_kitab || '-').replace(' [Tanpa Batas Usia]', '');
 
                 let tagFoto = item.foto_url 
                     ? `<img src="${item.foto_url}" width="25" height="35" class="rounded border object-fit-cover">` 
@@ -256,7 +258,9 @@
             html2pdf().from(element).set(opt).save();
         }
 
-        loadDataCetak();
+        loadDataCetak().catch(error => {
+            document.getElementById('tabel-rekap-delegasi').innerHTML = `<tr><td colspan="7" class="text-center text-danger">${error.message}</td></tr>`;
+        });
     </script>
 </body>
 </html>
