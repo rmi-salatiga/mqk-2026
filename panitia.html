@@ -58,6 +58,7 @@
                                 <th>No</th>
                                 <th>Foto</th>
                                 <th>Asal Pesantren</th>
+                                <th>Kontak Pesantren</th>
                                 <th>Nama Santri</th>
                                 <th>L/P</th>
                                 <th>Umur (18 Okt 2026)</th>
@@ -87,7 +88,7 @@
                 .from('peserta')
                 .select(`
                     *,
-                    pesantren ( nama_pesantren, nsp )
+                    pesantren ( * )
                 `);
 
             if (error) {
@@ -105,13 +106,14 @@
             tbody.innerHTML = '';
 
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">Belum ada peserta terdaftar.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="11" class="text-center text-muted">Belum ada peserta terdaftar.</td></tr>`;
                 return;
             }
 
             data.forEach((item, index) => {
                 let tagFoto = item.foto_url ? `<img src="${item.foto_url}" width="35" height="45" class="rounded border object-fit-cover" alt="Foto">` : `-`;
                 let linkKtp = item.file_identitas_url ? `<a href="${item.file_identitas_url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info">Lihat</a>` : `-`;
+                const pesantren = item.pesantren || {};
                 let statusBadge = item.status_verifikasi === 'Valid' 
                     ? '<span class="badge bg-success">Valid</span>' 
                     : '<span class="badge bg-warning text-dark">Pending</span>';
@@ -120,7 +122,8 @@
                     <tr>
                         <td class="text-center">${index + 1}</td>
                         <td class="text-center">${tagFoto}</td>
-                        <td><b>${item.pesantren ? item.pesantren.nama_pesantren : '-'}</b><br><small class="text-muted">NSP: ${item.pesantren ? item.pesantren.nsp : '-'}</small></td>
+                        <td><b>${escapeHtml(pesantren.nama_pesantren || '-')}</b><br><small class="text-muted">NSP: ${escapeHtml(pesantren.nsp || '-')}</small></td>
+                        <td>${renderKontakPesantren(pesantren)}</td>
                         <td>${item.nama_lengkap}</td>
                         <td class="text-center">${item.jenis_kelamin}</td>
                         <td class="text-center">${item.umur_per_18_okt} Thn</td>
@@ -134,6 +137,26 @@
                     </tr>
                 `;
             });
+        }
+
+        function escapeHtml(value) {
+            return String(value || '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+            }[character]));
+        }
+
+        function renderKontakPesantren(pesantren) {
+            const hp = String(pesantren.hp_admin || pesantren.no_hp || '').trim();
+            const digits = hp.replace(/\D/g, '');
+            const whatsappDigits = digits.startsWith('0') ? `62${digits.slice(1)}` : digits;
+            const detail = [
+                pesantren.pengasuh ? `Pengasuh: ${escapeHtml(pesantren.pengasuh)}` : '',
+                pesantren.alamat ? escapeHtml(pesantren.alamat) : ''
+            ].filter(Boolean).join('<br>');
+            const kontak = hp && digits
+                ? `<a href="https://wa.me/${whatsappDigits}" target="_blank" rel="noopener noreferrer">WhatsApp</a> · <a href="tel:${escapeHtml(hp)}">Telepon</a>`
+                : '<span class="text-muted">Kontak belum tersedia</span>';
+            return `${detail || '<span class="text-muted">Profil belum lengkap</span>'}<br>${kontak}`;
         }
 
         function hitungStatistik(data) {
