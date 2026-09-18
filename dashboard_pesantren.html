@@ -16,6 +16,8 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-success mb-4 px-3">
         <a class="navbar-brand fw-bold" href="#" id="nav-nama-pesantren">Panel Pesantren</a>
         <div class="ms-auto">
+            <a href="#" id="link-group-whatsapp" class="btn btn-success btn-sm fw-bold me-2" target="_blank" rel="noopener">Gabung Group WhatsApp</a>
+            <a href="#" id="link-juknis" class="btn btn-outline-light btn-sm fw-bold me-2" target="_blank" rel="noopener">Juknis</a>
             <a href="cetak.html" target="_blank" class="btn btn-light btn-sm fw-bold me-2">📄 Cetak Surat Delegasi</a>
             <button class="btn btn-outline-light btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalProfil">Profil Pesantren</button>
             <button class="btn btn-outline-light btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalGantiPassword">Ganti Password</button>
@@ -262,11 +264,30 @@
     <script>
         if (!requireMqkRole('pesantren')) throw new Error('Akses ditolak');
         const _supabase = createMqkSupabase();
+        configureResourceLinks();
 
         const pesantrenId = localStorage.getItem('pesantren_id');
         let namaPesantrenGlobal = localStorage.getItem('nama_pesantren') || 'Pesantren';
         let cacheSantriData = {}; 
         let listSantriAktif = [];  
+
+        function configureResourceLinks() {
+            const links = (MQK_SUPABASE_CONFIG && MQK_SUPABASE_CONFIG.links) || {};
+            [
+                ['link-group-whatsapp', links.groupWhatsappUrl, 'Link group WhatsApp belum diisi di app-config.js.'],
+                ['link-juknis', links.juknisUrl, 'Link Juknis belum diisi di app-config.js.']
+            ].forEach(([id, url, message]) => {
+                const link = document.getElementById(id);
+                if (url) {
+                    link.href = url;
+                    return;
+                }
+                link.classList.add('disabled');
+                link.setAttribute('aria-disabled', 'true');
+                link.title = message;
+                link.addEventListener('click', event => event.preventDefault());
+            });
+        }
 
         if (!pesantrenId) {
             window.location.href = 'index.html';

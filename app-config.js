@@ -4,6 +4,10 @@
         anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZHlrcnZheGNka2JwbWR6ZGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTUwNzIsImV4cCI6MjEwNTIzMTA3Mn0.W4D7k-sEF2wMwvrqfSwLobb-gFUelIVnmJ8l_xJudsg'
     };
 
+    config.links = config.links || {
+        groupWhatsappUrl: '',
+        juknisUrl: ''
+    };
     window.MQK_SUPABASE_CONFIG = config;
 
     window.createMqkSupabase = function () {
