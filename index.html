@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login MQK PCNU Salatiga 2026</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-light">
+
+    <div class="container mt-5" style="max-width: 400px;">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <h4 class="text-center mb-1 text-success fw-bold">MQK HSN 2026</h4>
+                <p class="text-center text-muted small mb-4">RMI-NU | PCNU Kota Salatiga</p>
+                
+                <!-- Form Login Tunggal -->
+                <form id="form-login-tunggal">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" id="input-user" class="form-control" required placeholder="Masukkan NSPP Pesantren atau Username Panitia">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" id="input-password" class="form-control" required value="rmi_nu.salatiga">
+                            <button class="btn btn-outline-secondary" type="button" id="toggle-pass" onclick="togglePassword()">
+                                👁️
+                            </button>
+                        </div>
+                        <div class="form-text">Default password pesantren: <code>rmi_nu.salatiga</code></div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Masuk Sistem</button>
+                </form>
+
+                <hr class="my-4">
+                <div class="text-center">
+                    <a href="tamu.html" class="text-decoration-none small text-muted">Lihat Rekap Tamu / Publik &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Ganti dengan URL dan Anon Key project Supabase Anda
+        const SUPABASE_URL = 'https://wcdykrvaxcdkbpmdzdct.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZHlrcnZheGNka2JwbWR6ZGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTUwNzIsImV4cCI6MjEwNTIzMTA3Mn0.W4D7k-sEF2wMwvrqfSwLobb-gFUelIVnmJ8l_xJudsg';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Fungsi togglePassword diletakkan di luar agar bisa diakses oleh atribut onclick pada tombol
+        function togglePassword() {
+            const inputField = document.getElementById('input-password');
+            const button = document.getElementById('toggle-pass');
+            
+            if (inputField.type === "password") {
+                inputField.type = "text";
+                button.innerHTML = "🙈"; 
+            } else {
+                inputField.type = "password";
+                button.innerHTML = "👁️"; 
+            }
+        }
+
+        document.getElementById('form-login-tunggal').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userInput = document.getElementById('input-user').value.trim();
+            const passInput = document.getElementById('input-password').value;
+
+            // 1. Cek apakah login sebagai Panitia di tabel 'panitia' Supabase
+            const { data: dataPanitia, error: errPanitia } = await _supabase
+                .from('panitia')
+                .select('*')
+                .eq('username', userInput)
+                .eq('password', passInput)
+                .single();
+
+            if (dataPanitia) {
+                localStorage.setItem('role', 'panitia');
+                localStorage.setItem('nama_panitia', dataPanitia.nama_lengkap);
+                window.location.href = 'panitia.html';
+                return;
+            }
+
+            // 2. Jika bukan panitia, cek ke tabel 'pesantren' berdasarkan NSP & Password
+            const { data: dataPesantren, error: errPesantren } = await _supabase
+                .from('pesantren')
+                .select('*')
+                .eq('nsp', userInput)
+                .eq('password', passInput)
+                .single();
+
+            if (errPesantren || !dataPesantren) {
+                alert('NSP / Username atau Password salah!');
+                return;
+            }
+
+            // Jika ditemukan di tabel pesantren
+            localStorage.setItem('pesantren_id', dataPesantren.id);
+            localStorage.setItem('nama_pesantren', dataPesantren.nama_pesantren || 'Admin Pesantren');
+            localStorage.setItem('role', 'pesantren');
+            window.location.href = 'dashboard_pesantren.html';
+        });
+    </script>
+</body>
+</html>
