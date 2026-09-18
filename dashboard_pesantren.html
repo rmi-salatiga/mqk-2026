@@ -17,11 +17,22 @@
         <div class="ms-auto">
             <a href="cetak.html" target="_blank" class="btn btn-light btn-sm fw-bold me-2">📄 Cetak Surat Delegasi</a>
             <button class="btn btn-outline-light btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalProfil">Profil Pesantren</button>
+            <button class="btn btn-outline-light btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalGantiPassword">Ganti Password</button>
             <button class="btn btn-danger btn-sm" onclick="logout()">Keluar</button>
         </div>
     </nav>
 
     <div class="container mb-5">
+        <!-- ALERT PERINGATAN KEWAJIBAN -->
+        <div class="row mb-4" id="alert-peringatan-container" style="display: none;">
+            <div class="col-md-12">
+                <div class="alert alert-danger shadow-sm">
+                    <h5 class="alert-heading fw-bold mb-1">⚠️ Perhatian! Akun Belum Lengkap</h5>
+                    <p class="mb-0" id="pesan-peringatan">Silakan lengkapi profil pondok pesantren (termasuk upload Scan Piagam NSPP) dan ganti password default Anda terlebih dahulu sebelum dapat menambahkan data santri delegasi.</p>
+                </div>
+            </div>
+        </div>
+
         <!-- INFO KUOTA -->
         <div class="row mb-4">
             <div class="col-md-12">
@@ -41,7 +52,7 @@
         <div class="card shadow">
             <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                 <h5 class="mb-0 text-secondary">Daftar Santri Delegasi</h5>
-                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalTambahSantri">+ Tambah Santri</button>
+                <button class="btn btn-success btn-sm" id="btn-buka-tambah-santri" data-bs-toggle="modal" data-bs-target="#modalTambahSantri" disabled>+ Tambah Santri</button>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -69,11 +80,11 @@
     </div>
 
     <!-- MODAL PROFIL & UPLOAD NSPP (BUCKET 'nspp') -->
-    <div class="modal fade" id="modalProfil" tabindex="-1">
+    <div class="modal fade" id="modalProfil" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Profil Pesantren</h5>
+                    <h5 class="modal-title">Profil Pesantren & Piagam NSPP</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -91,10 +102,32 @@
                             <textarea id="profil-alamat" class="form-control" rows="2" required></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Perbarui Scan Piagam NSPP (Format: JPG, JPEG, PNG)</label>
+                            <label class="form-label">Scan Piagam NSPP <span class="text-danger">*Wajib</span> (Format: JPG, JPEG, PNG)</label>
                             <input type="file" id="profil-nspp-file" class="form-control" accept=".jpg,.jpeg,.png">
+                            <div class="form-text" id="info-nspp-status">Status Piagam: Belum diunggah</div>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Simpan Perubahan Profil</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GANTI PASSWORD -->
+    <div class="modal fade" id="modalGantiPassword" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ganti Password Akun</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-ganti-password">
+                        <div class="mb-3">
+                            <label class="form-label">Password Baru</label>
+                            <input type="password" id="password-baru" class="form-control" placeholder="Masukkan password baru yang aman" required minlength="6">
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100">Perbarui Password</button>
                     </form>
                 </div>
             </div>
@@ -228,7 +261,8 @@
 
         const pesantrenId = localStorage.getItem('pesantren_id');
         let namaPesantrenGlobal = localStorage.getItem('nama_pesantren') || 'Pesantren';
-        let cacheSantriData = {}; // Cache data santri untuk keperluan edit
+        let cacheSantriData = {}; 
+        let listSantriAktif = [];  
 
         if (!pesantrenId) {
             window.location.href = 'index.html';
@@ -273,7 +307,7 @@
             }
 
             // 3. Cek apakah masih menggunakan password default (asumsi password default bernilai '123456' atau sesuai kolom password di DB)
-            if (dataPesantren.password === 'rmi_nu.salatiga' || dataPesantren.password === 'pesantren2026') {
+            if (dataPesantren.password === '123456' || dataPesantren.password === 'pesantren2026') {
                 belumLengkap = true;
                 pesanList.push("Anda masih menggunakan password bawaan/default. Silakan ganti password melalui tombol 'Ganti Password'.");
             }
@@ -370,13 +404,14 @@
 
             if (error) return;
 
+            listSantriAktif = data || [];
             const tbody = document.getElementById('tabel-santri-body');
             tbody.innerHTML = '';
-            document.getElementById('counter-kuota').innerText = `${data.length} / 14`;
-            cacheSantriData = {}; // Reset cache
+            document.getElementById('counter-kuota').innerText = `${listSantriAktif.length} / 14`;
+            cacheSantriData = {}; 
 
-            data.forEach((santri, index) => {
-                cacheSantriData[santri.id] = santri; // Simpan ke cache lokal aman dari error petik
+            listSantriAktif.forEach((santri, index) => {
+                cacheSantriData[santri.id] = santri;
 
                 let tagFoto = santri.foto_url ? `<img src="${santri.foto_url}" width="35" height="45" class="rounded border object-fit-cover">` : `-`;
                 let linkKtp = santri.file_identitas_url ? `<a href="${santri.file_identitas_url}" target="_blank" class="btn btn-sm btn-outline-info">Lihat</a>` : `-`;
@@ -402,6 +437,20 @@
             });
         }
 
+        // PROSES GANTI PASSWORD
+        document.getElementById('form-ganti-password').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const passwordBaru = document.getElementById('password-baru').value;
+
+            const { error } = await _supabase.from('pesantren').update({ password: passwordBaru }).eq('id', pesantrenId);
+            if (error) {
+                alert('Gagal memperbarui password: ' + error.message);
+            } else {
+                alert('Password berhasil diperbarui! Silakan lanjutkan melengkapi profil.');
+                location.reload();
+            }
+        });
+
         // PROSES TAMBAH SANTRI
         document.getElementById('form-tambah-santri').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -420,8 +469,7 @@
                     return;
                 }
 
-                const { count } = await _supabase.from('peserta').select('*', { count: 'exact', head: true }).eq('pesantren_id', pesantrenId);
-                if (count >= 14) {
+                if (listSantriAktif.length >= 14) {
                     alert('Maksimal kuota delegasi pondok pesantren adalah 14 santri!');
                     btnSubmit.innerText = "Simpan & Daftarkan";
                     btnSubmit.disabled = false;
@@ -433,6 +481,14 @@
                 const tanggal_lahir = document.getElementById('santri-tgl').value;
                 const jenis_kelamin = document.getElementById('santri-jk').value;
                 const kategori_kitab = document.getElementById('santri-kitab').value;
+
+                const sudahAda = listSantriAktif.some(s => s.kategori_kitab === kategori_kitab && s.jenis_kelamin === jenis_kelamin);
+                if (sudahAda) {
+                    alert(`Kuota untuk cabang "${kategori_kitab}" dengan jenis kelamin "${jenis_kelamin}" sudah terisi! Setiap cabang maksimal 1 Putra dan 1 Putri.`);
+                    btnSubmit.innerText = "Simpan & Daftarkan";
+                    btnSubmit.disabled = false;
+                    return;
+                }
 
                 const acuan = new Date('2026-10-18');
                 const lahir = new Date(tanggal_lahir);
@@ -490,7 +546,6 @@
             }
         });
 
-        // BUKA MODAL EDIT AMBIL DARI CACHE (AMAN DARI SPECIAL CHAR)
         function bukaModalEdit(id) {
             const santri = cacheSantriData[id];
             if (!santri) return;
@@ -506,7 +561,6 @@
             modalEdit.show();
         }
 
-        // PROSES SIMPAN EDIT SANTRI
         document.getElementById('form-edit-santri').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btnEdit = document.getElementById('btn-submit-edit');
@@ -520,6 +574,14 @@
                 const tanggal_lahir = document.getElementById('edit-tgl').value;
                 const jenis_kelamin = document.getElementById('edit-jk').value;
                 const kategori_kitab = document.getElementById('edit-kitab').value;
+
+                const sudahAda = listSantriAktif.some(s => s.id != id && s.kategori_kitab === kategori_kitab && s.jenis_kelamin === jenis_kelamin);
+                if (sudahAda) {
+                    alert(`Kuota untuk cabang "${kategori_kitab}" dengan jenis kelamin "${jenis_kelamin}" sudah terisi oleh santri lain!`);
+                    btnEdit.innerText = "Simpan Perubahan";
+                    btnEdit.disabled = false;
+                    return;
+                }
 
                 const acuan = new Date('2026-10-18');
                 const lahir = new Date(tanggal_lahir);
