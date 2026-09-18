@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pratinjau Surat Delegasi MQK 2026</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { 
+            background: #333; 
+            font-family: Arial, sans-serif; 
+            font-size: 10pt; /* Diperkecil sedikit agar muat 1 halaman penuh */
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact;
+        }
+        
+        .pdf-toolbar {
+            background: #212529;
+            color: white;
+            padding: 8px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            font-size: 11pt;
+        }
+
+        .sheet-container {
+            margin-top: 70px; 
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Ukuran Pas A4 Persis */
+        .sheet {
+            background: white;
+            width: 210mm;
+            height: 297mm; /* Kunci tinggi persis 1 halaman A4 */
+            padding: 10mm 15mm; /* Padding dirapatkan */
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Mendorong footer ke paling bawah */
+            overflow: hidden;
+        }
+
+        .sheet table {
+            font-size: 10pt;
+        }
+
+        .table-compact th, .table-compact td {
+            padding: 3px 5px !important;
+        }
+
+        .sheet-footer {
+            font-size: 8.5pt;
+            text-align: center;
+            border-top: 1px solid #ccc;
+            padding-top: 4px;
+            color: #555;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        @media print {
+            body { background: white; }
+            .pdf-toolbar { display: none !important; }
+            .sheet-container { margin: 0; padding: 0; display: block; }
+            .sheet { 
+                box-shadow: none; 
+                height: 297mm; 
+                width: 210mm; 
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="pdf-toolbar">
+        <div>
+            <span class="fw-bold" id="toolbar-title">📄 Surat_Delegasi_Pondok_Pesantren.pdf</span>
+        </div>
+        <div>
+            <a href="dashboard_pesantren.html" class="btn btn-outline-light btn-sm me-2">← Kembali</a>
+            <button onclick="unduhPDF()" class="btn btn-primary btn-sm px-3 me-2">📥 Unduh PDF</button>
+            <button onclick="window.print()" class="btn btn-success btn-sm px-3">🖨️ Cetak</button>
+        </div>
+    </div>
+
+    <div class="sheet-container">
+        <div class="sheet" id="area-cetak">
+            <div>
+                <!-- Kop Surat -->
+                <div class="text-center border-bottom pb-2 mb-2">
+                    <h4 class="fw-bold mb-1" style="font-size: 14pt;">SURAT DELEGASI PONDOK PESANTREN</h4>
+                    <h5 class="text-success mb-1" style="font-size: 12pt;">MUSABAQAH QIRA’ATIL KUTUB (MQK) HSN 2026</h5>
+                    <p class="text-muted mb-0 fw-bold" style="font-size: 9.5pt;">RMI-NU | PCNU KOTA SALATIGA</p>
+                </div>
+
+                <!-- Info Pesantren -->
+                <div class="mb-2">
+                    <table class="table table-sm borderless mb-1">
+                        <tr>
+                            <td width="22%"><strong>Asal Pesantren</strong></td>
+                            <td width="2%">:</td>
+                            <td id="lbl-nama-pesantren">Memuat...</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NSPP</strong></td>
+                            <td>:</td>
+                            <td id="lbl-nsp">Memuat...</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Alamat</strong></td>
+                            <td>:</td>
+                            <td id="lbl-alamat">Memuat...</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Tabel Daftar Delegasi -->
+                <h6 class="fw-bold text-secondary mb-1" style="font-size: 10.5pt;">Rekapitulasi Daftar Delegasi Santri</h6>
+                <div class="table-responsive mb-2">
+                    <table class="table table-bordered table-striped align-middle table-compact">
+                        <thead class="table-success text-center">
+                            <tr>
+                                <th width="5%">No</th>
+                                <th width="9%">Foto</th>
+                                <th width="26%">Nama Santri</th>
+                                <th width="7%">L/P</th>
+                                <th width="23%">TTL</th>
+                                <th width="9%">Umur</th>
+                                <th width="21%">Cabang Kitab</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-rekap-delegasi">
+                            <tr><td colspan="7" class="text-center text-muted">Memuat data santri...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tanda Tangan -->
+                <div class="row mt-2">
+                    <div class="col-6"></div>
+                    <div class="col-6 text-center" style="font-size: 10pt;">
+                        <p class="mb-1">Salatiga, <span id="lbl-tanggal-cetak">...................</span> 2026</p>
+                        <p class="mb-3"><strong>Pengasuh Pondok Pesantren<br><span id="lbl-nama-pesantren-ttd">...................................</span></strong></p>
+                        <br>
+                        <p class="border-bottom d-inline-block px-3 mb-0"><b>(<span id="lbl-nama-pengasuh">...................................................</span>)</b></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Halaman (Otomatis terdorong pas di bawah) -->
+            <div class="sheet-footer">
+                Ahad, 18 Oktober 2026 | PP. Agro Nur El Falah | hal. 1
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://wcdykrvaxcdkbpmdzdct.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZHlrcnZheGNka2JwbWR6ZGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTUwNzIsImV4cCI6MjEwNTIzMTA3Mn0.W4D7k-sEF2wMwvrqfSwLobb-gFUelIVnmJ8l_xJudsg';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const pesantrenId = localStorage.getItem('pesantren_id');
+        let namaPesantrenFile = "Pondok_Pesantren";
+
+        if (!pesantrenId) {
+            alert('Sesi habis, silakan login kembali.');
+            window.location.href = 'index.html';
+        }
+
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        document.getElementById('lbl-tanggal-cetak').innerText = new Date().toLocaleDateString('id-ID', options);
+
+        function formatTanggal(tanggalStr) {
+            if (!tanggalStr) return '-';
+            const date = new Date(tanggalStr);
+            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        async function loadDataCetak() {
+            const { data: pData } = await _supabase.from('pesantren').select('*').eq('id', pesantrenId).single();
+            if (pData) {
+                document.getElementById('lbl-nama-pesantren').innerText = pData.nama_pesantren || '-';
+                document.getElementById('lbl-nsp').innerText = pData.nsp || '-';
+                document.getElementById('lbl-alamat').innerText = pData.alamat || '-';
+                
+                document.getElementById('lbl-nama-pesantren-ttd').innerText = pData.nama_pesantren || 'Pondok Pesantren';
+                document.getElementById('lbl-nama-pengasuh').innerText = pData.pengasuh || '...................................................';
+                
+                if (pData.nama_pesantren) {
+                    namaPesantrenFile = pData.nama_pesantren.replace(/[^a-zA-Z0-9]/g, "_");
+                    document.getElementById('toolbar-title').innerText = `📄 Surat_Delegasi_${namaPesantrenFile}.pdf`;
+                }
+            }
+
+            const { data: pesertaList } = await _supabase.from('peserta').select('*').eq('pesantren_id', pesantrenId);
+            
+            const tbody = document.getElementById('tabel-rekap-delegasi');
+            tbody.innerHTML = '';
+
+            if (!pesertaList || pesertaList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Belum ada santri yang didaftarkan.</td></tr>`;
+                return;
+            }
+
+            pesertaList.forEach((item, index) => {
+                const tempatLahir = item.tempat_lahir ? item.tempat_lahir : '-';
+                const tanggalLahir = formatTanggal(item.tanggal_lahir);
+                const ttlGabung = `${tempatLahir}, ${tanggalLahir}`;
+
+                let namaKitabBersih = item.kategori_kitab.replace(' [Tanpa Batas Usia]', '');
+
+                let tagFoto = item.foto_url 
+                    ? `<img src="${item.foto_url}" width="25" height="35" class="rounded border object-fit-cover">` 
+                    : `-`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="text-center">${index + 1}</td>
+                        <td class="text-center">${tagFoto}</td>
+                        <td><b>${item.nama_lengkap}</b></td>
+                        <td class="text-center">${item.jenis_kelamin}</td>
+                        <td>${ttlGabung}</td>
+                        <td class="text-center">${item.umur_per_18_okt} Thn</td>
+                        <td>${namaKitabBersih}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function unduhPDF() {
+            const element = document.getElementById('area-cetak');
+            const opt = {
+                margin:       0,
+                filename:     `Surat_Delegasi_${namaPesantrenFile}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().from(element).set(opt).save();
+        }
+
+        loadDataCetak();
+    </script>
+</body>
+</html>

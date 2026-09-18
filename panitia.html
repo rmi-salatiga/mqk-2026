@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Panitia - MQK Salatiga 2026</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success mb-4 px-3">
+        <a class="navbar-brand fw-bold" href="#">Panel Panitia | MQK HSN PCNU Kota Salatiga 2026</a>
+        <div class="ms-auto">
+            <button class="btn btn-outline-light btn-sm me-2" onclick="exportToCSV()">Unduh Rekap (CSV)</button>
+            <button class="btn btn-danger btn-sm" onclick="logoutPanitia()">Keluar</button>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card shadow border-primary">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Seluruh Peserta</h6>
+                        <h3 class="fw-bold text-primary" id="stat-total-peserta">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow border-success">
+                    <div class="card-body">
+                        <h6 class="text-muted">Pondok Pesantren Terdaftar</h6>
+                        <h3 class="fw-bold text-success" id="stat-total-pesantren">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow border-warning">
+                    <div class="card-body">
+                        <h6 class="text-muted">Pelaksanaan Lomba</h6>
+                        <p class="mb-0 fw-bold text-dark">18 Oktober 2026 | PP Agro Nur El Falah</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-secondary">Verifikasi Data & Berkas Peserta</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle">
+                        <thead class="table-success text-center">
+                            <tr>
+                                <th>No</th>
+                                <th>Foto</th>
+                                <th>Asal Pesantren</th>
+                                <th>Nama Santri</th>
+                                <th>L/P</th>
+                                <th>Umur (18 Okt 2026)</th>
+                                <th>Cabang Kitab</th>
+                                <th>KTP/KK</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-panitia-body">
+                            <!-- Dimuat via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://wcdykrvaxcdkbpmdzdct.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZHlrcnZheGNka2JwbWR6ZGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTUwNzIsImV4cCI6MjEwNTIzMTA3Mn0.W4D7k-sEF2wMwvrqfSwLobb-gFUelIVnmJ8l_xJudsg';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let semuaDataPeserta = [];
+
+        async function loadDataPanitia() {
+            const { data, error } = await _supabase
+                .from('peserta')
+                .select(`
+                    *,
+                    pesantren ( nama_pesantren, nsp )
+                `);
+
+            if (error) return;
+
+            semuaDataPeserta = data;
+            renderTabel(semuaDataPeserta);
+            hitungStatistik(semuaDataPeserta);
+        }
+
+        function renderTabel(data) {
+            const tbody = document.getElementById('tabel-panitia-body');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">Belum ada peserta terdaftar.</td></tr>`;
+                return;
+            }
+
+            data.forEach((item, index) => {
+                let tagFoto = item.foto_url ? `<img src="${item.foto_url}" width="35" height="45" class="rounded border object-fit-cover">` : `-`;
+                let linkKtp = item.file_identitas_url ? `<a href="${item.file_identitas_url}" target="_blank" class="btn btn-sm btn-outline-info">Lihat</a>` : `-`;
+                let statusBadge = item.status_verifikasi === 'Valid' 
+                    ? '<span class="badge bg-success">Valid</span>' 
+                    : '<span class="badge bg-warning text-dark">Pending</span>';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="text-center">${index + 1}</td>
+                        <td class="text-center">${tagFoto}</td>
+                        <td><b>${item.pesantren ? item.pesantren.nama_pesantren : '-'}</b><br><small class="text-muted">NSP: ${item.pesantren ? item.pesantren.nsp : '-'}</small></td>
+                        <td>${item.nama_lengkap}</td>
+                        <td class="text-center">${item.jenis_kelamin}</td>
+                        <td class="text-center">${item.umur_per_18_okt} Thn</td>
+                        <td>${item.kategori_kitab}</td>
+                        <td class="text-center">${linkKtp}</td>
+                        <td class="text-center">${statusBadge}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-success mb-1" onclick="ubahStatus(${item.id}, 'Valid')">Valid</button>
+                            <button class="btn btn-sm btn-danger mb-1" onclick="hapusPeserta(${item.id})">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function hitungStatistik(data) {
+            document.getElementById('stat-total-peserta').innerText = data.length;
+            const uniquePesantren = new Set(data.map(item => item.pesantren_id));
+            document.getElementById('stat-total-pesantren').innerText = uniquePesantren.size;
+        }
+
+        async function ubahStatus(id, statusBaru) {
+            const { error } = await _supabase.from('peserta').update({ status_verifikasi: statusBaru }).eq('id', id);
+            if (!error) loadDataPanitia();
+            else alert('Gagal memperbarui status.');
+        }
+
+        async function hapusPeserta(id) {
+            if (confirm('Yakin ingin menghapus peserta ini?')) {
+                const { error } = await _supabase.from('peserta').delete().eq('id', id);
+                if (!error) loadDataPanitia();
+            }
+        }
+
+        function logoutPanitia() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        function exportToCSV() {
+            let csv = "No,Asal Pesantren,Nama Santri,Jenis Kelamin,Umur (18 Okt),Cabang Kitab,Status Verifikasi\n";
+            semuaDataPeserta.forEach((item, index) => {
+                csv += `${index + 1},"${item.pesantren ? item.pesantren.nama_pesantren : ''}","${item.nama_lengkap}",${item.jenis_kelamin},${item.umur_per_18_okt},"${item.kategori_kitab}",${item.status_verifikasi || 'Pending'}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Rekap_Peserta_MQK_Salatiga_2026.csv');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        loadDataPanitia();
+    </script>
+</body>
+</html>
