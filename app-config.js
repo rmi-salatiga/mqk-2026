@@ -5,7 +5,7 @@
         anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZHlrcnZheGNka2JwbWR6ZGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTUwNzIsImV4cCI6MjEwNTIzMTA3Mn0.W4D7k-sEF2wMwvrqfSwLobb-gFUelIVnmJ8l_xJudsg'
     };
 
-     config.links = config.links || {
+    config.links = config.links || {
         groupWhatsappUrl: 'https://chat.whatsapp.com/DzjmLbJ2EbB5pm0uJmMEFG',
         juknisUrl: 'https://drive.google.com/file/d/17DMEeC2uqcNBXt39qt_k7J0qSaycmtss/view?usp=sharing'
     };
