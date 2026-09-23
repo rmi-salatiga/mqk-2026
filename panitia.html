@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Panitia - MQK Salatiga 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="brand.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app-config.js"></script>
+    <script src="app-config.js?v=20260923.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body class="bg-light">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-success mb-4 px-3">
-        <a class="navbar-brand fw-bold" href="#">Panel Panitia | MQK HSN PCNU Kota Salatiga 2026</a>
+        <a class="navbar-brand fw-bold mqk-brand" href="#">
+            <img src="assets/logo-hari-santri-2026.png" alt="Logo Hari Santri 2026">
+            <span class="mqk-brand-text">Panel Panitia<span class="mqk-brand-subtitle">MQK HSN PCNU Kota Salatiga 2026</span></span>
+        </a>
         <div class="ms-auto">
             <button class="btn btn-outline-light btn-sm me-2" onclick="exportToCSV()">Unduh Rekap (CSV)</button>
             <button class="btn btn-danger btn-sm" onclick="logoutPanitia()">Keluar</button>
@@ -40,17 +45,53 @@
                 <div class="card shadow border-warning">
                     <div class="card-body">
                         <h6 class="text-muted">Pelaksanaan Lomba</h6>
-                        <p class="mb-0 fw-bold text-dark">18 Oktober 2026 | PP Agro Nur El Falah</p>
+                        <p class="mb-0 fw-bold text-dark" id="event-info">Memuat informasi acara...</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card shadow">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 text-secondary">Verifikasi Data & Berkas Peserta</h5>
+        <div class="card shadow mb-4 pesantren-summary-card">
+            <div class="card-header py-3">
+                <button class="btn btn-link text-decoration-none text-secondary fw-bold w-100 text-start p-0 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#panel-rekap-pesantren" aria-expanded="false" aria-controls="panel-rekap-pesantren">
+                    <span><span class="summary-icon">🏫</span> Rekap Data Pesantren <span class="badge summary-count" id="summary-count-pesantren">0 pesantren</span></span>
+                    <span aria-hidden="true">⌄</span>
+                </button>
+            </div>
+            <div id="panel-rekap-pesantren" class="collapse">
+                <div class="card-body summary-panel-body">
+                    <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead class="table-success text-center">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Pesantren</th>
+                                <th>NSP</th>
+                                <th>Pengasuh</th>
+                                <th>Alamat</th>
+                                <th>Kontak Admin</th>
+                                <th>Jumlah Peserta</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-pesantren-body">
+                            <tr><td colspan="7" class="text-center text-muted">Memuat rekap pesantren...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow verification-card">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Verifikasi Data & Berkas Peserta</h5>
             </div>
             <div class="card-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-3"><label class="form-label small fw-bold" for="filter-pesantren">Asal Pesantren</label><select id="filter-pesantren" class="form-select form-select-sm"><option value="">Semua Pesantren</option></select></div>
+                    <div class="col-md-2"><label class="form-label small fw-bold" for="filter-jk">L/P</label><select id="filter-jk" class="form-select form-select-sm"><option value="">Semua</option><option value="Putra">Putra</option><option value="Putri">Putri</option></select></div>
+                    <div class="col-md-4"><label class="form-label small fw-bold" for="filter-kitab">Cabang Lomba</label><select id="filter-kitab" class="form-select form-select-sm"><option value="">Semua Cabang</option></select></div>
+                    <div class="col-md-3"><label class="form-label small fw-bold" for="sort-peserta">Urutkan</label><select id="sort-peserta" class="form-select form-select-sm"><option value="default">Urutan Data</option><option value="pesantren-asc">Asal Pesantren (A-Z)</option><option value="pesantren-desc">Asal Pesantren (Z-A)</option><option value="jk-asc">L/P (A-Z)</option><option value="kitab-asc">Cabang Lomba (A-Z)</option><option value="aksi">Aksi (Pending lebih dulu)</option></select></div>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped align-middle">
                         <thead class="table-success text-center">
@@ -61,7 +102,7 @@
                                 <th>Kontak Pesantren</th>
                                 <th>Nama Santri</th>
                                 <th>L/P</th>
-                                <th>Umur (18 Okt 2026)</th>
+                                <th id="age-heading">Umur</th>
                                 <th>Cabang Kitab</th>
                                 <th>KTP/KK</th>
                                 <th>Status</th>
@@ -80,8 +121,12 @@
     <script>
         if (!requireMqkRole('panitia')) throw new Error('Akses ditolak');
         const _supabase = createMqkSupabase();
+        document.getElementById('event-info').innerText = `${MQK_SUPABASE_CONFIG.event.dateLabel} | ${MQK_SUPABASE_CONFIG.event.venue}`;
+        document.getElementById('age-heading').innerText = `Umur (${MQK_SUPABASE_CONFIG.event.ageLabel})`;
 
         let semuaDataPeserta = [];
+        let semuaDataPesantren = [];
+        let dataPesertaTampil = [];
 
         async function loadDataPanitia() {
             const { data, error } = await _supabase
@@ -97,8 +142,91 @@
             }
 
             semuaDataPeserta = data || [];
-            renderTabel(semuaDataPeserta);
+            isiFilterPeserta();
+            renderTabelPeserta();
             hitungStatistik(semuaDataPeserta);
+            await loadRekapPesantren(semuaDataPeserta);
+        }
+
+        function isiFilterPeserta() {
+            const pesantrenSelect = document.getElementById('filter-pesantren');
+            const kitabSelect = document.getElementById('filter-kitab');
+            const pesantrenOptions = [...new Map(semuaDataPeserta.map(item => {
+                const pesantren = item.pesantren || {};
+                return [item.pesantren_id, [item.pesantren_id, pesantren.nama_pesantren || '-']];
+            })).values()].sort((a, b) => a[1].localeCompare(b[1]));
+            pesantrenSelect.innerHTML = '<option value="">Semua Pesantren</option>' +
+                pesantrenOptions.map(([id, nama]) => `<option value="${escapeHtml(id)}">${escapeHtml(nama)}</option>`).join('');
+            const kitabOptions = [...new Set(semuaDataPeserta.map(item => item.kategori_kitab).filter(Boolean))].sort();
+            kitabSelect.innerHTML = '<option value="">Semua Cabang</option>' +
+                kitabOptions.map(kitab => `<option value="${escapeHtml(kitab)}">${escapeHtml(kitab)}</option>`).join('');
+        }
+
+        function renderTabelPeserta() {
+            const filterPesantren = document.getElementById('filter-pesantren').value;
+            const filterJk = document.getElementById('filter-jk').value;
+            const filterKitab = document.getElementById('filter-kitab').value;
+            const sort = document.getElementById('sort-peserta').value;
+            dataPesertaTampil = semuaDataPeserta.filter(item =>
+                (!filterPesantren || String(item.pesantren_id) === filterPesantren) &&
+                (!filterJk || item.jenis_kelamin === filterJk) &&
+                (!filterKitab || item.kategori_kitab === filterKitab)
+            );
+            const namaPesantren = item => ((item.pesantren || {}).nama_pesantren || '').toLowerCase();
+            const namaKitab = item => (item.kategori_kitab || '').toLowerCase();
+            if (sort !== 'default') {
+                dataPesertaTampil.sort((a, b) => {
+                    if (sort === 'aksi') return (a.status_verifikasi === 'Valid' ? 1 : 0) - (b.status_verifikasi === 'Valid' ? 1 : 0);
+                    const [field, direction] = sort.split('-');
+                    const values = field === 'pesantren' ? [namaPesantren(a), namaPesantren(b)] :
+                        field === 'jk' ? [(a.jenis_kelamin || ''), (b.jenis_kelamin || '')] :
+                        [namaKitab(a), namaKitab(b)];
+                    return values[0].localeCompare(values[1]) * (direction === 'desc' ? -1 : 1);
+                });
+            }
+            renderTabel(dataPesertaTampil);
+        }
+
+        ['filter-pesantren', 'filter-jk', 'filter-kitab', 'sort-peserta'].forEach(id =>
+            document.getElementById(id).addEventListener('change', renderTabelPeserta)
+        );
+
+        async function loadRekapPesantren(peserta) {
+            const { data, error } = await _supabase
+                .from('pesantren')
+                .select('*')
+                .order('nama_pesantren', { ascending: true });
+
+            if (error) {
+                document.getElementById('tabel-pesantren-body').innerHTML =
+                    `<tr><td colspan="7" class="text-center text-danger">Gagal memuat rekap pesantren: ${escapeHtml(error.message)}</td></tr>`;
+                return;
+            }
+
+            semuaDataPesantren = data || [];
+            document.getElementById('summary-count-pesantren').innerText = `${semuaDataPesantren.length} pesantren`;
+            const jumlahPeserta = peserta.reduce((jumlah, item) => {
+                jumlah[item.pesantren_id] = (jumlah[item.pesantren_id] || 0) + 1;
+                return jumlah;
+            }, {});
+            const tbody = document.getElementById('tabel-pesantren-body');
+
+            if (semuaDataPesantren.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Belum ada data pesantren.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = semuaDataPesantren.map((pesantren, index) => `
+                <tr>
+                    <td class="text-center">${index + 1}</td>
+                    <td><b>${escapeHtml(pesantren.nama_pesantren || '-')}</b></td>
+                    <td>${escapeHtml(pesantren.nsp || '-')}</td>
+                    <td>${escapeHtml(pesantren.pengasuh || '-')}</td>
+                    <td>${escapeHtml(pesantren.alamat || '-')}</td>
+                    <td>${renderKontakPesantren(pesantren)}</td>
+                    <td class="text-center">${jumlahPeserta[pesantren.id] || 0}</td>
+                </tr>
+            `).join('');
         }
 
         function renderTabel(data) {
@@ -126,7 +254,7 @@
                         <td>${renderKontakPesantren(pesantren)}</td>
                         <td>${item.nama_lengkap}</td>
                         <td class="text-center">${item.jenis_kelamin}</td>
-                        <td class="text-center">${item.umur_per_18_okt} Thn</td>
+                        <td class="text-center">${hitungUmur(item.tanggal_lahir)} Thn</td>
                         <td>${item.kategori_kitab || '-'}</td>
                         <td class="text-center">${linkKtp}</td>
                         <td class="text-center">${statusBadge}</td>
@@ -145,18 +273,24 @@
             }[character]));
         }
 
+        function hitungUmur(tanggalStr) {
+            if (!tanggalStr) return '-';
+            const lahir = new Date(tanggalStr);
+            const acuan = new Date(MQK_SUPABASE_CONFIG.competitionDate);
+            let umur = acuan.getFullYear() - lahir.getFullYear();
+            const selisihBulan = acuan.getMonth() - lahir.getMonth();
+            if (selisihBulan < 0 || (selisihBulan === 0 && acuan.getDate() < lahir.getDate())) umur--;
+            return umur;
+        }
+
         function renderKontakPesantren(pesantren) {
             const hp = String(pesantren.hp_admin || pesantren.no_hp || '').trim();
             const digits = hp.replace(/\D/g, '');
             const whatsappDigits = digits.startsWith('0') ? `62${digits.slice(1)}` : digits;
-            const detail = [
-                pesantren.pengasuh ? `Pengasuh: ${escapeHtml(pesantren.pengasuh)}` : '',
-                pesantren.alamat ? escapeHtml(pesantren.alamat) : ''
-            ].filter(Boolean).join('<br>');
             const kontak = hp && digits
-                ? `<a href="https://wa.me/${whatsappDigits}" target="_blank" rel="noopener noreferrer">WhatsApp</a> · <a href="tel:${escapeHtml(hp)}">Telepon</a>`
+                ? `<div class="d-flex gap-1 justify-content-center flex-wrap"><a href="https://wa.me/${whatsappDigits}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-success">WA</a><a href="tel:${escapeHtml(hp)}" class="btn btn-sm btn-outline-secondary">Telepon</a></div>`
                 : '<span class="text-muted">Kontak belum tersedia</span>';
-            return `${detail || '<span class="text-muted">Profil belum lengkap</span>'}<br>${kontak}`;
+            return kontak;
         }
 
         function hitungStatistik(data) {
@@ -185,7 +319,7 @@
         }
 
         function exportToCSV() {
-            let csv = "No,Asal Pesantren,Nama Santri,Jenis Kelamin,Umur (18 Okt),Cabang Kitab,Status Verifikasi\n";
+            let csv = `No,Asal Pesantren,Nama Santri,Jenis Kelamin,Umur (${MQK_SUPABASE_CONFIG.event.ageLabel}),Cabang Kitab,Status Verifikasi\n`;
             semuaDataPeserta.forEach((item, index) => {
                 csv += `${index + 1},"${item.pesantren ? item.pesantren.nama_pesantren : ''}","${item.nama_lengkap}",${item.jenis_kelamin},${item.umur_per_18_okt},"${item.kategori_kitab}",${item.status_verifikasi || 'Pending'}\n`;
             });

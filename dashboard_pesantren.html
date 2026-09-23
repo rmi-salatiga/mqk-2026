@@ -6,15 +6,19 @@
     <title>Dashboard Admin Pesantren - MQK Salatiga 2026</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="brand.css">
     <!-- Supabase JS Client CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app-config.js"></script>
+    <script src="app-config.js?v=20260923.1"></script>
 </head>
 <body class="bg-light">
 
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-success mb-4 px-3">
-        <a class="navbar-brand fw-bold" href="#" id="nav-nama-pesantren">Panel Pesantren</a>
+        <a class="navbar-brand fw-bold mqk-brand" href="#">
+            <img src="assets/logo-hari-santri-2026.png" alt="Logo Hari Santri 2026">
+            <span class="mqk-brand-text"><span id="nav-nama-pesantren">Panel Pesantren</span><span class="mqk-brand-subtitle">MQK HSN PCNU Kota Salatiga 2026</span></span>
+        </a>
         <div class="ms-auto">
             <a href="https://chat.whatsapp.com/DzjmLbJ2EbB5pm0uJmMEFG" id="link-group-whatsapp" class="btn btn-success btn-sm fw-bold me-2" target="_blank" rel="noopener">Gabung Group WhatsApp</a>
             <a href="https://drive.google.com/file/d/17DMEeC2uqcNBXt39qt_k7J0qSaycmtss/view?usp=sharing" id="link-juknis" class="btn btn-outline-light btn-sm fw-bold me-2" target="_blank" rel="noopener">Juknis</a>
@@ -67,7 +71,7 @@
                                 <th>Nama Santri</th>
                                 <th>L/P</th>
                                 <th>TTL</th>
-                                <th>Umur (18 Okt 2026)</th>
+                                <th id="age-heading">Umur</th>
                                 <th>Cabang Kitab</th>
                                 <th>KTP/KK</th>
                                 <th>Aksi</th>
@@ -265,6 +269,7 @@
         if (!requireMqkRole('pesantren')) throw new Error('Akses ditolak');
         const _supabase = createMqkSupabase();
         configureResourceLinks();
+        document.getElementById('age-heading').innerText = `Umur (${MQK_SUPABASE_CONFIG.event.ageLabel})`;
 
         const pesantrenId = localStorage.getItem('pesantren_id');
         let namaPesantrenGlobal = localStorage.getItem('nama_pesantren') || 'Pesantren';
@@ -425,6 +430,16 @@
             return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
         }
 
+        function hitungUmur(tanggalStr) {
+            if (!tanggalStr) return '-';
+            const lahir = new Date(tanggalStr);
+            const acuan = new Date(MQK_SUPABASE_CONFIG.competitionDate);
+            let umur = acuan.getFullYear() - lahir.getFullYear();
+            const selisihBulan = acuan.getMonth() - lahir.getMonth();
+            if (selisihBulan < 0 || (selisihBulan === 0 && acuan.getDate() < lahir.getDate())) umur--;
+            return umur;
+        }
+
         async function loadDataSantri() {
             const { data, error } = await _supabase
                 .from('peserta')
@@ -457,7 +472,7 @@
                         <td><b>${santri.nama_lengkap}</b></td>
                         <td class="text-center">${santri.jenis_kelamin}</td>
                         <td>${ttl}</td>
-                        <td class="text-center">${santri.umur_per_18_okt} Thn</td>
+                        <td class="text-center">${hitungUmur(santri.tanggal_lahir)} Thn</td>
                         <td>${kitabBersih}</td>
                         <td class="text-center">${linkKtp}</td>
                         <td class="text-center">
@@ -522,7 +537,7 @@
                     return;
                 }
 
-                const acuan = new Date('2026-10-18');
+                const acuan = new Date(MQK_SUPABASE_CONFIG.competitionDate);
                 const lahir = new Date(tanggal_lahir);
                 let umur = acuan.getFullYear() - lahir.getFullYear();
                 const m = acuan.getMonth() - lahir.getMonth();
@@ -615,7 +630,7 @@
                     return;
                 }
 
-                const acuan = new Date('2026-10-18');
+                const acuan = new Date(MQK_SUPABASE_CONFIG.competitionDate);
                 const lahir = new Date(tanggal_lahir);
                 let umur = acuan.getFullYear() - lahir.getFullYear();
                 const m = acuan.getMonth() - lahir.getMonth();
