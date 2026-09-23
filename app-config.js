@@ -5,8 +5,8 @@
     };
 
     config.links = config.links || {
-        groupWhatsappUrl: '',
-        juknisUrl: ''
+        groupWhatsappUrl: 'https://chat.whatsapp.com/DzjmLbJ2EbB5pm0uJmMEFG',
+        juknisUrl: 'https://drive.google.com/file/d/17DMEeC2uqcNBXt39qt_k7J0qSaycmtss/view?usp=sharing'
     };
     window.MQK_SUPABASE_CONFIG = config;
 
