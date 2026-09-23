@@ -1,4 +1,5 @@
 (function () {
+    const CONFIG_VERSION = '20260923.1';
     const config = window.MQK_SUPABASE_CONFIG || {
         url: 'https://wcdykrvaxcdkbpmdzdct.supabase.co',
         anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZHlrcnZheGNka2JwbWR6ZGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTUwNzIsImV4cCI6MjEwNTIzMTA3Mn0.W4D7k-sEF2wMwvrqfSwLobb-gFUelIVnmJ8l_xJudsg'
@@ -14,6 +15,7 @@
         ageLabel: '11 Okt 2026',
         venue: 'PP Agro Nur El Falah'
     };
+    config.version = CONFIG_VERSION;
     window.MQK_SUPABASE_CONFIG = config;
 
     window.createMqkSupabase = function () {
