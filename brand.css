@@ -171,6 +171,55 @@ body {
     border-bottom: 1px solid rgba(233, 162, 26, 0.35);
 }
 
+.pesantren-summary-card {
+    border: 2px solid rgba(8, 127, 131, 0.22);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(223, 243, 241, 0.78));
+}
+
+.pesantren-summary-card .card-header {
+    background: linear-gradient(100deg, var(--mqk-teal), var(--mqk-teal-dark)) !important;
+    border-bottom: 3px solid var(--mqk-gold);
+}
+
+.pesantren-summary-card .card-header .btn-link {
+    color: #fff !important;
+}
+
+.summary-icon {
+    display: inline-grid;
+    width: 30px;
+    height: 30px;
+    margin-right: 0.35rem;
+    place-items: center;
+    border-radius: 0.55rem;
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.summary-count {
+    margin-left: 0.5rem;
+    background: var(--mqk-gold);
+    color: #513300;
+    vertical-align: middle;
+}
+
+.summary-panel-body {
+    background: rgba(255, 255, 255, 0.46);
+}
+
+.verification-card {
+    border-top: 4px solid var(--mqk-gold);
+}
+
+.verification-card .card-header {
+    background: linear-gradient(100deg, #fff8e8, #ffffff) !important;
+    border-bottom: 2px solid rgba(233, 162, 26, 0.45);
+}
+
+.verification-card .card-header h5 {
+    color: var(--mqk-teal-dark);
+    font-weight: 700;
+}
+
 .card-header h5,
 .card-header h6 {
     color: var(--mqk-ink);
