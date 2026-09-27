@@ -1,5 +1,5 @@
 (function () {
-    const CONFIG_VERSION = '20260927.2';
+    const CONFIG_VERSION = '20260927.3';
     const config = window.MQK_SUPABASE_CONFIG || {
         url: 'https://wcdykrvaxcdkbpmdzdct.supabase.co',
         anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZHlrcnZheGNka2JwbWR6ZGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTUwNzIsImV4cCI6MjEwNTIzMTA3Mn0.W4D7k-sEF2wMwvrqfSwLobb-gFUelIVnmJ8l_xJudsg'
@@ -43,10 +43,18 @@
         if (/\(Ulya\s*-/.test(category || '')) limit = 24;
         else if (/\(Wustho\s*-/.test(category || '')) limit = 19;
         else if (/\(Ula\s*-/.test(category || '')) limit = 17;
+        let latestEligibleBirthDate = null;
+        let meetsDateCutoff = true;
+        if (limit !== null) {
+            const [eventYear, eventMonth, eventDay] = String(config.competitionDate).split('-').map(Number);
+            latestEligibleBirthDate = `${String(eventYear - limit).padStart(4, '0')}-${String(eventMonth).padStart(2, '0')}-${String(eventDay).padStart(2, '0')}`;
+            meetsDateCutoff = String(birthDate || '') > latestEligibleBirthDate;
+        }
         return {
             age,
             limit,
-            valid: Number.isFinite(age) && (limit === null || age < limit)
+            latestEligibleBirthDate,
+            valid: Number.isFinite(age) && (limit === null || (age < limit && meetsDateCutoff))
         };
     };
 

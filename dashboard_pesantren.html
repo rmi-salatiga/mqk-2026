@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="brand.css">
     <!-- Supabase JS Client CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app-config.js?v=20260927.2"></script>
+    <script src="app-config.js?v=20260927.3"></script>
 </head>
 <body class="bg-light">
 
@@ -444,7 +444,7 @@
             }
             if (!hasil.valid) {
                 const marhalah = kategori.match(/\((Ula|Wustho|Ulya)\s*-/)?.[1] || 'ini';
-                alert(`Peserta Marhalah ${marhalah} harus berusia di bawah ${hasil.limit} tahun pada ${MQK_SUPABASE_CONFIG.event.dateLabel}. Usia santri saat ini: ${hasil.age} tahun.`);
+                alert(`Peserta Marhalah ${marhalah} harus berusia di bawah ${hasil.limit} tahun pada ${MQK_SUPABASE_CONFIG.event.dateLabel}. Tanggal lahir harus setelah ${hasil.latestEligibleBirthDate}. Usia santri saat ini: ${hasil.age} tahun.`);
             }
             return hasil;
         }
