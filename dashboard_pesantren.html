@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="brand.css">
     <!-- Supabase JS Client CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app-config.js?v=20260923.1"></script>
+    <script src="app-config.js?v=20260927.2"></script>
 </head>
 <body class="bg-light">
 
@@ -431,13 +431,21 @@
         }
 
         function hitungUmur(tanggalStr) {
-            if (!tanggalStr) return '-';
-            const lahir = new Date(tanggalStr);
-            const acuan = new Date(MQK_SUPABASE_CONFIG.competitionDate);
-            let umur = acuan.getFullYear() - lahir.getFullYear();
-            const selisihBulan = acuan.getMonth() - lahir.getMonth();
-            if (selisihBulan < 0 || (selisihBulan === 0 && acuan.getDate() < lahir.getDate())) umur--;
-            return umur;
+            const umur = calculateMqkAge(tanggalStr);
+            return Number.isFinite(umur) ? umur : '-';
+        }
+
+        function validasiUmurPeserta(tanggalStr, kategori) {
+            const hasil = validateMqkAge(tanggalStr, kategori);
+            if (!Number.isFinite(hasil.age)) {
+                alert('Tanggal lahir tidak valid.');
+                return hasil;
+            }
+            if (!hasil.valid) {
+                const marhalah = kategori.match(/\((Ula|Wustho|Ulya)\s*-/)?.[1] || 'ini';
+                alert(`Peserta Marhalah ${marhalah} harus berusia di bawah ${hasil.limit} tahun pada ${MQK_SUPABASE_CONFIG.event.dateLabel}. Usia santri saat ini: ${hasil.age} tahun.`);
+            }
+            return hasil;
         }
 
         async function loadDataSantri() {
@@ -460,7 +468,7 @@
             listSantriAktif.forEach((santri, index) => {
                 cacheSantriData[santri.id] = santri;
 
-                let tagFoto = santri.foto_url ? `<img src="${santri.foto_url}" width="35" height="45" class="rounded border object-fit-cover">` : `-`;
+                let tagFoto = santri.foto_url ? `<img src="${withMqkPhotoCacheBust(santri.foto_url)}" width="35" height="45" class="rounded border object-fit-cover">` : `-`;
                 let linkKtp = santri.file_identitas_url ? `<a href="${santri.file_identitas_url}" target="_blank" class="btn btn-sm btn-outline-info">Lihat</a>` : `-`;
                 let ttl = `${santri.tempat_lahir || '-'}, ${formatTanggal(santri.tanggal_lahir)}`;
                 let kitabBersih = (santri.kategori_kitab || '-').replace(' [Tanpa Batas Usia]', '');
@@ -537,36 +545,22 @@
                     return;
                 }
 
-                const acuan = new Date(MQK_SUPABASE_CONFIG.competitionDate);
-                const lahir = new Date(tanggal_lahir);
-                let umur = acuan.getFullYear() - lahir.getFullYear();
-                const m = acuan.getMonth() - lahir.getMonth();
-                if (m < 0 || (m === 0 && acuan.getDate() < lahir.getDate())) {
-                    umur--;
-                }
-
-                if (kategori_kitab.includes('Ula') && umur > 17) {
-                    alert(`Usia santri (${umur} tahun) melebihi batas maksimal 17 tahun untuk Marhalah Ula!`);
+                const validasiUsia = validasiUmurPeserta(tanggal_lahir, kategori_kitab);
+                if (!validasiUsia.valid) {
                     btnSubmit.innerText = "Simpan & Daftarkan"; btnSubmit.disabled = false; return;
                 }
-                if (kategori_kitab.includes('Wustho') && umur > 19) {
-                    alert(`Usia santri (${umur} tahun) melebihi batas maksimal 19 tahun untuk Marhalah Wustho!`);
-                    btnSubmit.innerText = "Simpan & Daftarkan"; btnSubmit.disabled = false; return;
-                }
-                if (kategori_kitab.includes('Ulya') && umur > 24) {
-                    alert(`Usia santri (${umur} tahun) melebihi batas maksimal 24 tahun untuk Marhalah Ulya!`);
-                    btnSubmit.innerText = "Simpan & Daftarkan"; btnSubmit.disabled = false; return;
-                }
+                const umur = validasiUsia.age;
 
                 const cleanPesantren = namaPesantrenGlobal.replace(/[^a-zA-Z0-9]/g, "_");
                 const cleanPeserta = nama_lengkap.replace(/[^a-zA-Z0-9]/g, "_");
                 const cleanCabang = kategori_kitab.split('(')[0].trim().replace(/[^a-zA-Z0-9]/g, "_");
                 const namaFileBase = `${cleanPeserta}_${cleanCabang}_${cleanPesantren}.jpg`;
+                const namaFileFoto = `${cleanPeserta}_${cleanCabang}_${cleanPesantren}_${Date.now()}.jpg`;
 
                 const filePasfotoFinal = await kompresKeTargetKB(filePasfoto, 80);
-                const { error: errFoto } = await _supabase.storage.from('pasfoto').upload(namaFileBase, filePasfotoFinal, { upsert: true });
+                const { error: errFoto } = await _supabase.storage.from('pasfoto').upload(namaFileFoto, filePasfotoFinal, { upsert: true });
                 if (errFoto) throw new Error('Gagal upload pasfoto: ' + errFoto.message);
-                const fotoUrl = _supabase.storage.from('pasfoto').getPublicUrl(namaFileBase).data.publicUrl;
+                const fotoUrl = _supabase.storage.from('pasfoto').getPublicUrl(namaFileFoto).data.publicUrl;
 
                 const fileKtpFinal = await kompresKeTargetKB(fileKtp, 200);
                 const { error: errKtp } = await _supabase.storage.from('ktp-kk').upload(namaFileBase, fileKtpFinal, { upsert: true });
@@ -630,26 +624,11 @@
                     return;
                 }
 
-                const acuan = new Date(MQK_SUPABASE_CONFIG.competitionDate);
-                const lahir = new Date(tanggal_lahir);
-                let umur = acuan.getFullYear() - lahir.getFullYear();
-                const m = acuan.getMonth() - lahir.getMonth();
-                if (m < 0 || (m === 0 && acuan.getDate() < lahir.getDate())) {
-                    umur--;
-                }
-
-                if (kategori_kitab.includes('Ula') && umur > 17) {
-                    alert(`Usia santri (${umur} tahun) melebihi batas maksimal 17 tahun untuk Marhalah Ula!`);
+                const validasiUsia = validasiUmurPeserta(tanggal_lahir, kategori_kitab);
+                if (!validasiUsia.valid) {
                     btnEdit.innerText = "Simpan Perubahan"; btnEdit.disabled = false; return;
                 }
-                if (kategori_kitab.includes('Wustho') && umur > 19) {
-                    alert(`Usia santri (${umur} tahun) melebihi batas maksimal 19 tahun untuk Marhalah Wustho!`);
-                    btnEdit.innerText = "Simpan Perubahan"; btnEdit.disabled = false; return;
-                }
-                if (kategori_kitab.includes('Ulya') && umur > 24) {
-                    alert(`Usia santri (${umur} tahun) melebihi batas maksimal 24 tahun untuk Marhalah Ulya!`);
-                    btnEdit.innerText = "Simpan Perubahan"; btnEdit.disabled = false; return;
-                }
+                const umur = validasiUsia.age;
 
                 let updateData = {
                     nama_lengkap, tempat_lahir, tanggal_lahir,
@@ -663,13 +642,14 @@
                 const cleanPeserta = nama_lengkap.replace(/[^a-zA-Z0-9]/g, "_");
                 const cleanCabang = kategori_kitab.split('(')[0].trim().replace(/[^a-zA-Z0-9]/g, "_");
                 const namaFileBase = `${cleanPeserta}_${cleanCabang}_${cleanPesantren}.jpg`;
+                const namaFileFoto = `${cleanPeserta}_${cleanCabang}_${cleanPesantren}_${Date.now()}.jpg`;
 
                 if (filePasfoto) {
                     if (!cekFormatFile(filePasfoto)) { alert('Format pasfoto harus JPG/PNG!'); btnEdit.disabled = false; return; }
                     const compressedFoto = await kompresKeTargetKB(filePasfoto, 80);
-                    const { error: fotoError } = await _supabase.storage.from('pasfoto').upload(namaFileBase, compressedFoto, { upsert: true });
+                    const { error: fotoError } = await _supabase.storage.from('pasfoto').upload(namaFileFoto, compressedFoto, { upsert: true });
                     if (fotoError) throw new Error('Gagal upload pasfoto: ' + fotoError.message);
-                    updateData.foto_url = _supabase.storage.from('pasfoto').getPublicUrl(namaFileBase).data.publicUrl;
+                    updateData.foto_url = _supabase.storage.from('pasfoto').getPublicUrl(namaFileFoto).data.publicUrl;
                 }
 
                 if (fileKtp) {
