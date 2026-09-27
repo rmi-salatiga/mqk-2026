@@ -73,6 +73,7 @@
                                 <th>TTL</th>
                                 <th id="age-heading">Umur</th>
                                 <th>Cabang Kitab</th>
+                                <th>Status Verifikasi</th>
                                 <th>KTP/KK</th>
                                 <th>Aksi</th>
                             </tr>
@@ -472,6 +473,10 @@
                 let linkKtp = santri.file_identitas_url ? `<a href="${santri.file_identitas_url}" target="_blank" class="btn btn-sm btn-outline-info">Lihat</a>` : `-`;
                 let ttl = `${santri.tempat_lahir || '-'}, ${formatTanggal(santri.tanggal_lahir)}`;
                 let kitabBersih = (santri.kategori_kitab || '-').replace(' [Tanpa Batas Usia]', '');
+                const isValid = santri.status_verifikasi === 'Valid';
+                const statusBadge = isValid
+                    ? '<span class="badge bg-success">Valid</span>'
+                    : '<span class="badge bg-warning text-dark">Menunggu verifikasi</span>';
 
                 tbody.innerHTML += `
                     <tr>
@@ -482,6 +487,7 @@
                         <td>${ttl}</td>
                         <td class="text-center">${hitungUmur(santri.tanggal_lahir)} Thn</td>
                         <td>${kitabBersih}</td>
+                        <td class="text-center">${statusBadge}</td>
                         <td class="text-center">${linkKtp}</td>
                         <td class="text-center">
                             <button class="btn btn-warning btn-sm mb-1" onclick="bukaModalEdit(${santri.id})">Edit</button>
