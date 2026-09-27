@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="brand.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app-config.js?v=20260923.1"></script>
+    <script src="app-config.js?v=20260927.2"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body class="bg-light">
@@ -239,7 +239,7 @@
             }
 
             data.forEach((item, index) => {
-                let tagFoto = item.foto_url ? `<img src="${item.foto_url}" width="35" height="45" class="rounded border object-fit-cover" alt="Foto">` : `-`;
+                let tagFoto = item.foto_url ? `<img src="${withMqkPhotoCacheBust(item.foto_url)}" width="35" height="45" class="rounded border object-fit-cover" alt="Foto">` : `-`;
                 let linkKtp = item.file_identitas_url ? `<a href="${item.file_identitas_url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info">Lihat</a>` : `-`;
                 const pesantren = item.pesantren || {};
                 let statusBadge = item.status_verifikasi === 'Valid' 
@@ -274,13 +274,8 @@
         }
 
         function hitungUmur(tanggalStr) {
-            if (!tanggalStr) return '-';
-            const lahir = new Date(tanggalStr);
-            const acuan = new Date(MQK_SUPABASE_CONFIG.competitionDate);
-            let umur = acuan.getFullYear() - lahir.getFullYear();
-            const selisihBulan = acuan.getMonth() - lahir.getMonth();
-            if (selisihBulan < 0 || (selisihBulan === 0 && acuan.getDate() < lahir.getDate())) umur--;
-            return umur;
+            const umur = calculateMqkAge(tanggalStr);
+            return Number.isFinite(umur) ? umur : '-';
         }
 
         function renderKontakPesantren(pesantren) {
