@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Hadir Registrasi MQK HSN 2026</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="brand.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app-config.js?v=20260927.3"></script>
+    <style>
+        body {
+            background: #e8eeee;
+            color: #172b2c;
+            font-family: Arial, sans-serif;
+        }
+
+        .print-toolbar {
+            position: sticky;
+            z-index: 10;
+            top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            color: #fff;
+            background: #087f83;
+            box-shadow: 0 4px 16px rgba(24, 59, 61, 0.2);
+        }
+
+        .print-pages {
+            padding: 20px 0;
+        }
+
+        .attendance-page {
+            box-sizing: border-box;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto 18px;
+            padding: 10mm;
+            background: #fff;
+            box-shadow: 0 4px 18px rgba(24, 59, 61, 0.16);
+        }
+
+        .attendance-heading {
+            display: grid;
+            grid-template-columns: 22mm 1fr 22mm;
+            align-items: center;
+            gap: 3mm;
+            padding-bottom: 2mm;
+            margin-bottom: 4mm;
+            border-bottom: 1mm solid #087f83;
+            text-align: center;
+        }
+
+        .attendance-heading img {
+            width: 20mm;
+            height: 20mm;
+            object-fit: contain;
+        }
+
+        .attendance-heading h1,
+        .attendance-heading h2,
+        .attendance-heading p {
+            margin: 1mm 0;
+        }
+
+        .attendance-heading h1 {
+            font-size: 14pt;
+            font-weight: 700;
+        }
+
+        .attendance-heading h2 {
+            color: #087f83;
+            font-size: 10pt;
+            font-weight: 700;
+        }
+
+        .attendance-heading p {
+            font-size: 8pt;
+            font-weight: 600;
+        }
+
+        .branch-title {
+            margin: 0 0 4mm;
+            color: #056568;
+            font-size: 13pt;
+            text-align: center;
+        }
+
+        .attendance-title {
+            margin: 0 0 2mm;
+            color: #172b2c;
+            font-size: 13pt;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 9pt;
+        }
+
+        .attendance-table th,
+        .attendance-table td {
+            height: 9mm;
+            padding: 1mm 1.5mm;
+            border: 0.25mm solid #496566;
+        }
+
+        .attendance-table th {
+            height: 8mm;
+            color: #075e61;
+            background: #dff3f1;
+            text-align: center;
+        }
+
+        .attendance-table .number,
+        .attendance-table .gender,
+        .attendance-table .draw-number {
+            text-align: center;
+        }
+
+        .attendance-table .number { width: 12mm; }
+        .attendance-table .gender { width: 18mm; }
+        .attendance-table .draw-number { width: 24mm; }
+        .attendance-table .signature { width: 34mm; }
+
+        .attendance-table th:nth-child(2),
+        .attendance-table td:nth-child(2) {
+            width: 48mm;
+        }
+
+        .attendance-table th:nth-child(4),
+        .attendance-table td:nth-child(4) {
+            width: 58mm;
+        }
+
+        .attendance-page + .attendance-page {
+            break-before: page;
+            page-break-before: always;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        @media print {
+            body { background: #fff; }
+            .print-toolbar,
+            .screen-message { display: none !important; }
+            .print-pages { padding: 0; }
+            .attendance-page {
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0;
+                box-shadow: none;
+                break-after: page;
+                page-break-after: always;
+            }
+            .attendance-page:last-child {
+                break-after: auto;
+                page-break-after: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-toolbar">
+        <strong>Daftar Hadir Registrasi MQK HSN 2026</strong>
+        <div>
+            <a href="panitia.html" class="btn btn-outline-light btn-sm me-2">Kembali</a>
+            <button id="btn-cetak" class="btn btn-light btn-sm" onclick="window.print()" disabled>Cetak</button>
+        </div>
+    </div>
+
+    <main id="daftar-halaman" class="print-pages">
+        <p id="status-muat" class="screen-message text-center p-4">Memuat data peserta...</p>
+    </main>
+
+    <script>
+        if (!requireMqkRole('panitia')) throw new Error('Akses ditolak');
+        const _supabase = createMqkSupabase();
+
+        function escapeHtml(value) {
+            return String(value || '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+            }[character]));
+        }
+
+        async function loadDaftarHadir() {
+            const { data, error } = await _supabase
+                .from('peserta')
+                .select('id, nama_lengkap, jenis_kelamin, kategori_kitab, pesantren(nama_pesantren)')
+                .order('nama_lengkap', { ascending: true });
+
+            const status = document.getElementById('status-muat');
+            if (error) {
+                status.classList.add('text-danger');
+                status.innerText = 'Gagal memuat daftar peserta: ' + error.message;
+                return;
+            }
+
+            const peserta = data || [];
+            if (peserta.length === 0) {
+                status.innerText = 'Belum ada peserta terdaftar.';
+                return;
+            }
+
+            const branches = [...new Set(peserta.map(item => item.kategori_kitab).filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b, 'id'));
+            if (branches.length === 0) {
+                status.innerText = 'Data peserta belum memiliki cabang lomba.';
+                return;
+            }
+            document.getElementById('daftar-halaman').innerHTML = branches.map(branch => {
+                const entries = peserta
+                    .filter(item => item.kategori_kitab === branch)
+                    .sort((a, b) => {
+                        const genderOrder = value => value === 'Putra' ? 0 : value === 'Putri' ? 1 : 2;
+                        return genderOrder(a.jenis_kelamin) - genderOrder(b.jenis_kelamin) ||
+                            (a.nama_lengkap || '').localeCompare(b.nama_lengkap || '', 'id');
+                    });
+                const rows = entries.map((item, index) => `
+                    <tr>
+                        <td class="number">${index + 1}</td>
+                        <td>${escapeHtml(item.nama_lengkap || '-')}</td>
+                        <td class="gender">${escapeHtml(item.jenis_kelamin || '-')}</td>
+                        <td>${escapeHtml((item.pesantren || {}).nama_pesantren || '-')}</td>
+                        <td class="draw-number">&nbsp;</td>
+                        <td class="signature">&nbsp;</td>
+                    </tr>
+                `).join('');
+
+                return `
+                    <section class="attendance-page">
+                        <header class="attendance-heading">
+                            <img src="assets/logo-hari-santri-2026.png" alt="Logo Hari Santri 2026">
+                            <div>
+                                <h2>MUSABAQAH QIRA'ATIL KUTUB (MQK) HSN 2026</h2>
+                                <p>RMI-NU | PCNU KOTA SALATIGA</p>
+                                <p>${escapeHtml(MQK_SUPABASE_CONFIG.event.dateLabel)} | ${escapeHtml(MQK_SUPABASE_CONFIG.event.venue)}</p>
+                            </div>
+                            <img src="assets/logo-nahdlatul-ulama.png" alt="Logo Nahdlatul Ulama">
+                        </header>
+                        <h1 class="attendance-title">DAFTAR HADIR REGISTRASI PESERTA</h1>
+                        <h3 class="branch-title">Cabang: ${escapeHtml(branch)}</h3>
+                        <table class="attendance-table">
+                            <thead><tr><th>No</th><th>Nama</th><th>L/P</th><th>Asal Pesantren</th><th>No Undian</th><th>TTD</th></tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </section>
+                `;
+            }).join('');
+            document.getElementById('btn-cetak').disabled = false;
+        }
+
+        loadDaftarHadir().catch(error => {
+            const status = document.getElementById('status-muat');
+            status.classList.add('text-danger');
+            status.innerText = 'Gagal memuat daftar peserta: ' + error.message;
+        });
+    </script>
+</body>
+</html>
