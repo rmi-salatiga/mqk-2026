@@ -638,16 +638,6 @@ body {
     color: #385556;
 }
 
-.proposal-conflict-note {
-    padding: 0.7rem 0.9rem;
-    border-left: 4px solid var(--mqk-gold);
-    border-radius: 0.5rem;
-    background: #fff3d2;
-    color: #6b4b00;
-    font-size: 0.9rem;
-    font-weight: 700;
-}
-
 .schedule-table {
     font-size: clamp(0.75rem, 1.25vw, 1rem);
 }
