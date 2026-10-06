@@ -309,6 +309,15 @@ body {
     font-weight: 800;
 }
 
+.proposal-edit-field textarea {
+    font-family: inherit;
+    line-height: 1.45;
+}
+
+.proposal-edit-field:has(textarea[rows="16"]) textarea {
+    min-height: 320px;
+}
+
 .proposal-save-status {
     margin-top: 0.8rem;
     color: var(--mqk-muted);
@@ -560,6 +569,85 @@ body {
     background: #e8f5f3;
 }
 
+.proposal-presentation-table tbody tr:nth-child(even) {
+    background: #f2f8f7;
+}
+
+.proposal-fact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+
+.proposal-fact {
+    display: grid;
+    gap: 0.3rem;
+    padding: 0.9rem 1rem;
+    border-left: 4px solid var(--mqk-gold);
+    border-radius: 0.55rem;
+    background: #fff;
+}
+
+.proposal-fact span,
+.proposal-branch-card span {
+    color: var(--mqk-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.proposal-fact strong,
+.proposal-branch-card strong {
+    color: var(--mqk-teal-dark);
+}
+
+.proposal-branch-grid {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.proposal-branch-group {
+    padding: 0.8rem;
+    border-radius: 0.7rem;
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.proposal-branch-group h2 {
+    margin: 0 0 0.65rem;
+    color: var(--mqk-teal-dark);
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.proposal-branch-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+}
+
+.proposal-branch-card {
+    display: grid;
+    gap: 0.3rem;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid var(--mqk-border);
+    border-radius: 0.55rem;
+    background: #fff;
+}
+
+.proposal-branch-card small {
+    color: #385556;
+}
+
+.proposal-conflict-note {
+    padding: 0.7rem 0.9rem;
+    border-left: 4px solid var(--mqk-gold);
+    border-radius: 0.5rem;
+    background: #fff3d2;
+    color: #6b4b00;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
 .schedule-table {
     font-size: clamp(0.75rem, 1.25vw, 1rem);
 }
@@ -607,6 +695,11 @@ body {
 
     .proposal-edit-field textarea {
         min-height: 85px;
+    }
+
+    .proposal-fact-grid,
+    .proposal-branch-cards {
+        grid-template-columns: 1fr;
     }
 }
 
