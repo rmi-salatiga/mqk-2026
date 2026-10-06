@@ -18,6 +18,7 @@
             <span class="mqk-brand-text">Panel Panitia<span class="mqk-brand-subtitle">MQK HSN PCNU Kota Salatiga 2026</span></span>
         </a>
         <div class="ms-auto">
+            <button class="btn btn-warning btn-sm me-2" onclick="bukaModePresentasi()">Mode Presentasi</button>
             <a class="btn btn-light btn-sm me-2" href="cetak_absensi.html" target="_blank" rel="noopener">Cetak Daftar Hadir Registrasi</a>
             <button class="btn btn-outline-light btn-sm me-2" onclick="exportToCSV()">Unduh Rekap (CSV)</button>
             <button class="btn btn-danger btn-sm" onclick="logoutPanitia()">Keluar</button>
@@ -171,6 +172,23 @@
         </div>
     </div>
 
+    <section id="mode-presentasi" class="presentation-mode d-none" aria-label="Mode presentasi">
+        <header class="presentation-toolbar">
+            <span class="fw-bold">Ringkasan Panitia MQK HSN 2026</span>
+            <div class="d-flex gap-2 align-items-center">
+                <span id="presentation-slide-count" class="small"></span>
+                <button class="btn btn-sm btn-outline-light" onclick="toggleLayarPenuh()">Layar penuh</button>
+                <button class="btn btn-sm btn-light" onclick="tutupModePresentasi()">Tutup</button>
+            </div>
+        </header>
+        <main id="presentation-slides" class="presentation-slides"></main>
+        <footer class="presentation-controls">
+            <button id="presentation-prev" class="btn btn-outline-light" onclick="pindahSlide(-1)">← Sebelumnya</button>
+            <span class="small">Gunakan tombol panah kiri/kanan untuk berpindah slide</span>
+            <button id="presentation-next" class="btn btn-warning" onclick="pindahSlide(1)">Berikutnya →</button>
+        </footer>
+    </section>
+
     <script>
         if (!requireMqkRole('panitia')) throw new Error('Akses ditolak');
         const _supabase = createMqkSupabase();
@@ -181,6 +199,15 @@
         let semuaDataPesantren = [];
         let dataPesertaTampil = [];
         let attendanceFieldAvailable = false;
+        let slidePresentasiAktif = 0;
+        const proposalStorageKey = 'mqk2026-proposal-presentasi-v1';
+        const proposalFields = [
+            { id: 'proposal-tujuan', label: 'Tujuan kegiatan' },
+            { id: 'proposal-rencana', label: 'Rencana pelaksanaan' },
+            { id: 'proposal-kebutuhan', label: 'Kebutuhan dan dukungan' },
+            { id: 'proposal-anggaran', label: 'Rencana anggaran' },
+            { id: 'proposal-keputusan', label: 'Keputusan yang dimohonkan' }
+        ];
 
         async function loadDataPanitia() {
             const { data, error } = await _supabase
@@ -418,6 +445,144 @@
             document.getElementById('stat-peserta-hadir').innerText = attendanceFieldAvailable ? data.filter(item => item.status_kehadiran === 'Hadir').length : '-';
             document.getElementById('stat-peserta-belum-hadir').innerText = attendanceFieldAvailable ? data.filter(item => item.status_kehadiran !== 'Hadir').length : '-';
         }
+
+        function ambilDraftProposal() {
+            try {
+                const draft = localStorage.getItem(proposalStorageKey);
+                return draft ? JSON.parse(draft) : {};
+            } catch (error) {
+                console.error('Gagal membaca draft proposal lokal:', error);
+                return {};
+            }
+        }
+
+        function simpanDraftProposal(field, value) {
+            try {
+                const draft = ambilDraftProposal();
+                draft[field] = value;
+                localStorage.setItem(proposalStorageKey, JSON.stringify(draft));
+                const status = document.getElementById('proposal-save-status');
+                if (status) status.innerText = `Draft tersimpan di browser ini pada ${new Date().toLocaleTimeString('id-ID')}.`;
+            } catch (error) {
+                alert('Gagal menyimpan draft proposal di browser ini: ' + error.message);
+            }
+        }
+
+        function renderSlidesPresentasi() {
+            const valid = semuaDataPeserta.filter(item => item.status_verifikasi === 'Valid').length;
+            const pending = semuaDataPeserta.length - valid;
+            const hadir = attendanceFieldAvailable
+                ? semuaDataPeserta.filter(item => item.status_kehadiran === 'Hadir').length
+                : null;
+            const branches = new Map();
+            semuaDataPeserta.forEach(item => {
+                const nama = item.kategori_kitab || 'Cabang belum dipilih';
+                if (!branches.has(nama)) branches.set(nama, { total: 0, valid: 0, hadir: 0 });
+                const branch = branches.get(nama);
+                branch.total++;
+                if (item.status_verifikasi === 'Valid') branch.valid++;
+                if (item.status_kehadiran === 'Hadir') branch.hadir++;
+            });
+            const maxBranchCount = Math.max(1, ...[...branches.values()].map(branch => branch.total));
+            const draft = ambilDraftProposal();
+            const slides = [
+                `<article class="presentation-slide presentation-cover">
+                    <img src="assets/logo-hari-santri-2026.png" alt="Logo Hari Santri 2026">
+                    <p class="presentation-kicker">RMI-NU | PCNU KOTA SALATIGA</p>
+                    <h1>Musabaqah Qira'atil Kutub</h1>
+                    <h2>Hari Santri Nasional 2026</h2>
+                    <p class="presentation-event">${escapeHtml(MQK_SUPABASE_CONFIG.event.dateLabel)} · ${escapeHtml(MQK_SUPABASE_CONFIG.event.venue)}</p>
+                    <p class="presentation-note">Bahan koordinasi dan pemaparan panitia</p>
+                </article>`,
+                `<article class="presentation-slide">
+                    <p class="presentation-kicker">KONDISI TERKINI</p>
+                    <h1>Ringkasan Peserta</h1>
+                    <div class="presentation-metrics">
+                        <div><strong>${semuaDataPeserta.length}</strong><span>Total peserta</span></div>
+                        <div><strong>${semuaDataPesantren.length}</strong><span>Pesantren terdaftar</span></div>
+                        <div><strong>${valid}</strong><span>Valid</span></div>
+                        <div><strong>${pending}</strong><span>Menunggu verifikasi</span></div>
+                        <div><strong>${hadir === null ? '-' : hadir}</strong><span>${hadir === null ? 'Kehadiran (perlu setup)' : 'Sudah hadir'}</span></div>
+                    </div>
+                    ${hadir === null ? '<p class="presentation-warning">Statistik kehadiran belum tersedia. Terapkan migration Supabase terlebih dahulu.</p>' : ''}
+                </article>`,
+                `<article class="presentation-slide">
+                    <p class="presentation-kicker">DISTRIBUSI</p>
+                    <h1>Rekap per Cabang</h1>
+                    <div class="presentation-branches">
+                        ${[...branches.entries()].sort(([a], [b]) => a.localeCompare(b, 'id')).map(([name, branch]) => `
+                            <div class="presentation-branch">
+                                <div class="presentation-branch-label"><strong>${escapeHtml(name)}</strong><span>${branch.total} peserta · ${branch.valid} valid${hadir === null ? ' · kehadiran belum tersedia' : ` · ${branch.hadir} hadir`}</span></div>
+                                <div class="presentation-track"><div class="presentation-bar" style="width:${Math.max(5, branch.total / maxBranchCount * 100)}%"></div></div>
+                            </div>
+                        `).join('') || '<p>Belum ada data peserta untuk ditampilkan.</p>'}
+                    </div>
+                </article>`,
+                `<article class="presentation-slide proposal-slide">
+                    <p class="presentation-kicker">BAHAN PEMBAHASAN</p>
+                    <h1>Rencana Kegiatan & Anggaran</h1>
+                    <p class="presentation-proposal-intro">Lengkapi poin proposal untuk dibahas bersama pimpinan. Kolom kosong berarti belum diisi, bukan angka atau keputusan yang telah disetujui.</p>
+                    <div class="proposal-grid">
+                        ${proposalFields.map(field => `
+                            <label class="proposal-field" for="${field.id}">
+                                <strong>${field.label}</strong>
+                                <textarea id="${field.id}" data-proposal-field="${field.id}" placeholder="Belum diisi">${escapeHtml(draft[field.id] || '')}</textarea>
+                            </label>
+                        `).join('')}
+                    </div>
+                    <p id="proposal-save-status" class="presentation-local-note">Draft disimpan hanya di browser/perangkat ini; belum tersimpan di Supabase dan belum dibagikan ke panitia lain.</p>
+                </article>`
+            ];
+
+            const container = document.getElementById('presentation-slides');
+            container.innerHTML = slides.map((slide, index) => `
+                <div class="presentation-slide-frame${index === slidePresentasiAktif ? ' active' : ''}" data-slide-index="${index}">${slide}</div>
+            `).join('');
+            document.getElementById('presentation-slide-count').innerText = `${slidePresentasiAktif + 1} / ${slides.length}`;
+            document.getElementById('presentation-prev').disabled = slidePresentasiAktif === 0;
+            document.getElementById('presentation-next').disabled = slidePresentasiAktif === slides.length - 1;
+            container.querySelectorAll('[data-proposal-field]').forEach(field => {
+                field.addEventListener('input', event => simpanDraftProposal(event.target.dataset.proposalField, event.target.value));
+            });
+        }
+
+        function bukaModePresentasi() {
+            slidePresentasiAktif = 0;
+            document.getElementById('mode-presentasi').classList.remove('d-none');
+            document.body.classList.add('presentation-open');
+            renderSlidesPresentasi();
+        }
+
+        function tutupModePresentasi() {
+            document.getElementById('mode-presentasi').classList.add('d-none');
+            document.body.classList.remove('presentation-open');
+            if (document.fullscreenElement) document.exitFullscreen().catch(error => console.error('Gagal keluar dari layar penuh:', error));
+        }
+
+        async function toggleLayarPenuh() {
+            try {
+                if (document.fullscreenElement) await document.exitFullscreen();
+                else await document.getElementById('mode-presentasi').requestFullscreen();
+            } catch (error) {
+                alert('Mode layar penuh tidak tersedia: ' + error.message);
+            }
+        }
+
+        function pindahSlide(delta) {
+            const totalSlides = document.querySelectorAll('.presentation-slide-frame').length;
+            slidePresentasiAktif = Math.max(0, Math.min(totalSlides - 1, slidePresentasiAktif + delta));
+            renderSlidesPresentasi();
+        }
+
+        document.addEventListener('keydown', event => {
+            if (document.getElementById('mode-presentasi').classList.contains('d-none')) return;
+            if (event.target.matches('textarea, input, select')) {
+                if (event.key !== 'Escape') return;
+            }
+            if (event.key === 'Escape') tutupModePresentasi();
+            if (event.key === 'ArrowRight' || event.key === 'PageDown') pindahSlide(1);
+            if (event.key === 'ArrowLeft' || event.key === 'PageUp') pindahSlide(-1);
+        });
 
         async function ubahStatus(id, statusBaru) {
             const { error } = await _supabase.from('peserta').update({ status_verifikasi: statusBaru }).eq('id', id);
