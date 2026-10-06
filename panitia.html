@@ -157,49 +157,34 @@
         const proposalStorageKey = 'mqk2026-proposal-presentasi-v1';
         const proposalFields = [
             {
-                id: 'proposal-identitas',
-                label: 'Nama dan waktu kegiatan',
-                initialValue: 'PROPOSAL KEGIATAN MUSABAQAH QIRAATIL KUTUB (MQK)\nPeringatan Hari Santri Nasional PCNU Kota Salatiga Tahun 2026\n\nHari/Tanggal: Ahad, 18 Oktober 2026\nWaktu: 07.00 WIB s.d. selesai\nTempat: Pondok Pesantren Agro Nur El Falah'
-            },
-            {
-                id: 'proposal-tema',
-                label: 'Tema',
-                initialValue: 'Melestarikan Tradisi Keilmuan Pesantren, Mencetak Generasi Santri Berilmu dan Berakhlak'
-            },
-            {
-                id: 'proposal-latar-belakang',
-                label: 'Latar belakang',
-                initialValue: 'Hari Santri menjadi momentum untuk mengenang perjuangan ulama dan santri serta meneguhkan kontribusi santri bagi masyarakat dan bangsa. Qira’atul Kutub merupakan tradisi penting dalam menjaga kesinambungan sanad dan khazanah keilmuan Islam.\n\nKegiatan MQK Kota Salatiga menjadi wadah prestasi, peningkatan kemampuan membaca dan memahami kitab turats, pelestarian tradisi intelektual pesantren, serta silaturahmi antarpondok pesantren dan madrasah diniyah.'
-            },
-            {
-                id: 'proposal-dasar',
-                label: 'Dasar kegiatan',
-                initialValue: '1. Pancasila dan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945.\n2. Semangat memperingati Hari Santri Nasional.\n3. Khazanah dan tradisi keilmuan pesantren dalam menjaga dan mengembangkan kajian kitab turats.\n4. Program kerja RMI-NU Kota Salatiga dalam bidang pendidikan, dakwah, dan pengembangan kader Nahdlatul Ulama.\n5. Hasil musyawarah panitia pelaksana kegiatan MQK RMI-NU Kota Salatiga.'
-            },
-            {
-                id: 'proposal-tujuan',
-                label: 'Maksud dan tujuan',
-                initialValue: 'Maksud: memperingati Hari Santri Nasional sekaligus mengembangkan tradisi keilmuan pesantren melalui kompetisi membaca dan memahami kitab-kitab turats.\n\nTujuan:\n1. Memeriahkan Peringatan Hari Santri Nasional.\n2. Melestarikan pembelajaran kitab kuning di kalangan santri.\n3. Meningkatkan kemampuan membaca dan memahami kitab turats.\n4. Meningkatkan motivasi mendalami ilmu-ilmu keislaman.\n5. Menumbuhkan kecintaan terhadap tradisi keilmuan pesantren.'
+                id: 'proposal-waktu-tempat',
+                label: 'Waktu dan tempat kegiatan',
+                format: 'fields',
+                initialValue: 'Hari/Tanggal | Ahad, 18 Oktober 2026\nWaktu | 07.00 WIB s.d. selesai\nTempat | Pondok Pesantren Agro Nur El Falah'
             },
             {
                 id: 'proposal-cabang',
                 label: 'Cabang dan materi lomba',
-                initialValue: 'MARHALAH ULA\n• Majelis Nahwu — Mukhtashor Jiddan; materi awal sampai Bab Fashlun.\n• Majelis Fiqh — Safinatunnaja; materi awal sampai Mubtilatus Sholat.\n\nMARHALAH WUSTHO\n• Majelis Nahwu — Fathu Robbil Bariyah; materi awal sampai Bab Fashlun.\n• Majelis Fiqh — Fathul Qorib; materi awal sampai Kitabus Shiyam.\n\nMARHALAH ULYA\n• Majelis Nahwu — Syarah Ibnu Aqil; materi awal tentang Nakiroh dan Ma’rifat.\n• Majelis Fiqh — Fathul Mu’in; materi awal sampai Zakat.\n\nMARHALAH UMUM\n• Tafsir Jalalain; materi Surat Al-Baqarah.\n\nSetiap cabang diikuti peserta Putra dan Putri.'
+                format: 'branch',
+                initialValue: 'Marhalah Ula | Nahwu | Mukhtashor Jiddan | Awal - Bab Fashlun\nMarhalah Ula | Fiqh | Safinatunnaja | Awal - Mubtilatus sholat\nMarhalah Wustho | Nahwu | Fathu Robbil Bariyah | Awal - Bab Fashlun\nMarhalah Wustho | Fiqh | Fathul Qorib | Awal - Kitabus shiyam\nMarhalah Ulya | Nahwu | Syarah Ibnu Aqil | Awal - Nakiroh dan Ma’rifat\nMarhalah Ulya | Fiqh | Fathul Mu’in | Awal - Zakat\nMarhalah Umum | Tafsir | Tafsir Jalalain | Surat Al-Baqarah'
             },
             {
                 id: 'proposal-peserta',
                 label: 'Peserta dan ketentuan usia',
-                initialValue: 'Peserta adalah santri Putra dan Putri dari pesantren yang terdaftar di RMI PCNU Kota Salatiga. Setiap pesantren dapat mengirim maksimal 14 delegasi, masing-masing satu Putra dan satu Putri untuk tiap kitab, dengan surat delegasi resmi.\n\nDraf proposal mencantumkan batas usia per 18 Oktober 2026: Ula maksimal 17 tahun, Wustho maksimal 19 tahun, Ulya maksimal 24 tahun, dan Umum tanpa batas usia. Batas dan tanggal ini perlu diselaraskan dengan ketentuan pendaftaran terbaru.'
+                format: 'participants',
+                initialValue: 'Asal peserta | Santri putra dan putri dari pesantren terdaftar di RMI PCNU Kota Salatiga\nKuota | Maksimal 14 delegasi per pesantren\nKomposisi | 1 putra dan 1 putri untuk setiap kitab\nDokumen | Surat delegasi resmi\nBatas usia dalam draf | Ula maksimal 17 tahun; Wustho maksimal 19 tahun; Ulya maksimal 24 tahun; Umum tanpa batas usia'
             },
             {
                 id: 'proposal-panitia',
                 label: 'Susunan panitia inti',
-                initialValue: 'Pengarah: KH. Nasif Ubadah, Lc.; K. Abdul Fattah Muhsin; K. Muhibburrohman, S.PdI.\nKetua: Gus Hafidzin, S.E.\nSekretaris: Gunawan Laksono Aji, S.PdI, M.A.; Ahmad Muta’alimun.\nBendahara: Gus Nanda Akmal B.\nSeksi Acara: Gus Mahfudl Sidiq Muhayyat, S.T., M.Eng.; Gus Abdul Qadir.\nSeksi Perlengkapan: Pengurus Pondok Tuan Rumah.\nSeksi Konsumsi: Gus Afriyan.\nSeksi Dekdok: Gus Muhammad Mas’ud, M.Pd.\nSeksi Humas: Gus Hamdan Yuafi, M.E.; Gus Hilmi Arkhan, S.E.; Gus Nawawi.\nPanitera: Gus Muhammad Khaidar Azmi, L.c. M.A.\nKoordinator Juri: Gus Mat Rokhim, S.PdI., M.A.\nKoordinator Pendaftaran: Ahmad Muta’aalimun; Gus Faza Bahar Zulkarnain, S.Ag.'
+                format: 'committee',
+                initialValue: 'Pengarah | KH. Nasif Ubadah, Lc.; K. Abdul Fattah Muhsin; K. Muhibburrohman, S.PdI.\nKetua | Gus Hafidzin, S.E.\nSekretaris | Gunawan Laksono Aji, S.PdI, M.A.; Ahmad Muta’alimun\nBendahara | Gus Nanda Akmal B.\nSeksi Acara | Gus Mahfudl Sidiq Muhayyat, S.T., M.Eng.; Gus Abdul Qadir\nSeksi Perlengkapan | Pengurus Pondok Tuan Rumah\nSeksi Konsumsi | Gus Afriyan\nSeksi Dekdok | Gus Muhammad Mas’ud, M.Pd.\nSeksi Humas | Gus Hamdan Yuafi, M.E.; Gus Hilmi Arkhan, S.E.; Gus Nawawi\nPanitera | Gus Muhammad Khaidar Azmi, L.c. M.A.\nKoordinator Juri | Gus Mat Rokhim, S.PdI., M.A.\nKoordinator Pendaftaran | Ahmad Muta’alimun; Gus Faza Bahar Zulkarnain, S.Ag.'
             },
             {
                 id: 'proposal-juri',
                 label: 'Dewan juri',
-                initialValue: 'MARHALAH ULA\n• Mukhtashor Jiddan: K. Muhammad Nuh; K. Imam Fawaid.\n• Safinatunnaja: K. Mustaqim; K. Slamet.\n\nMARHALAH WUSTHO\n• Fathu Robbil Bariyah: Gus Ihsan; Gus Mahfudz Fauzi.\n• Fathul Qorib: K. M. Muhibbur Rohman, S.Pd.I.; KH. Nashif Ubadah, Lc.\n\nMARHALAH ULYA\n• Syarah Ibnu Aqil: K. Muhammad Anas; K. Dr. M. Gufron, M.Ag.\n• Fathul Mu’in: Dr. K.H. Agus Ahmad Suaidi, Lc., M.A.; K. Muhamad Fahrudin Yusuf, M.A.\n\nMARHALAH UMUM\n• Tafsir Jalalain: K. Abdul Fatah Mokhsin.\n\nCatatan: baris juri nomor 14 pada tabel draf tidak mencantumkan nama; konfirmasi dan lengkapi.'
+                format: 'judges',
+                initialValue: 'Marhalah Ula | Mukhtashor Jiddan | K. Muhammad Nuh; K. Imam Fawaid\nMarhalah Ula | Safinatunnaja | K. Mustaqim; K. Slamet\nMarhalah Wustho | Fathu Robbil Bariyah | Gus Ihsan; Gus Mahfudz Fauzi\nMarhalah Wustho | Fathul Qorib | K. M. Muhibbur Rohman, S.Pd.I.; KH. Nashif Ubadah, Lc.\nMarhalah Ulya | Syarah Ibnu Aqil | K. Muhammad Anas; K. Dr. M. Gufron, M.Ag.\nMarhalah Ulya | Fathul Mu’in | Dr. K.H. Agus Ahmad Suaidi, Lc., M.A.; K. Muhamad Fahrudin Yusuf, M.A.\nMarhalah Umum | Tafsir Jalalain | K. Abdul Fatah Mokhsin'
             },
             {
                 id: 'proposal-rencana',
@@ -207,25 +192,11 @@
                 initialValue: '07.00–08.00 | Registrasi peserta | Panitia\n08.00–08.10 | Pembukaan | MC\n08.10–08.20 | Kalam ilahi | Santri PP Agro Nur El Falah\n08.20–08.30 | Tahlil | K. Nu’man Al Hafidz\n08.30–08.40 | Indonesia Raya dan Syubbanul Wathan | Santri PP Agro Nur El Falah\n08.40–08.50 | Sambutan Ketua RMI | Kyai M. Khafidzin, S.E.\n08.50–09.00 | Sambutan tuan rumah | Pengasuh PP Agro Nur El Falah\n09.00–09.10 | Sambutan Ketua PCNU dan pembukaan | Drs. H. Muslikh, M.M.\n09.10–09.15 | Doa penutup | KH. Maslikhuddin Yazid\n09.15–09.30 | Briefing peserta | Panitia\n09.30–selesai | Perlombaan | Panitia'
             },
             {
-                id: 'proposal-kebutuhan',
-                label: 'Sumber pendanaan dan dukungan',
-                initialValue: 'Draf mencantumkan kebutuhan kegiatan dengan total rencana Rp 34.197.000. Sumber pendanaan/dukungan yang akan dimohonkan perlu dilengkapi dan disepakati panitia.'
-            },
-            {
                 id: 'proposal-anggaran',
                 label: 'Rencana anggaran (sesuai draf)',
+                format: 'budget',
                 initialValue: 'Kebutuhan | Volume | Satuan | Harga satuan | Jumlah\nBisyaroh Dewan Juri | 14 | Pcs | Rp 500.000 | Rp 7.000.000\nPiala | 14 | Paket | Rp 350.000 | Rp 4.900.000\nSertifikat | 42 | Pcs | Rp 3.500 | Rp 147.000\nUang Pembinaan Juara 1 | 14 | Pcs | Rp 500.000 | Rp 7.000.000\nUang Pembinaan Juara 2 | 14 | Pcs | Rp 400.000 | Rp 5.600.000\nUang Pembinaan Juara 3 | 14 | Pcs | Rp 300.000 | Rp 4.200.000\nSnack Pembukaan | 200 | Pcs | Rp 8.000 | Rp 1.600.000\nKonsumsi Dewan Juri, Panitia dan Tamu Undangan | 1 | Paket | Rp 1.500.000 | Rp 1.500.000\nDekdok | 1 | Paket | Rp 750.000 | Rp 750.000\nKesekretariatan | 1 | Paket | Rp 500.000 | Rp 500.000\nAkomodasi | 1 | Paket | Rp 500.000 | Rp 500.000\nLain-lain | 1 | Paket | Rp 500.000 | Rp 500.000\nTOTAL DRAF | | | | Rp 34.197.000\n\nAngka disalin dari draf dan belum dianggap persetujuan atau realisasi.'
             },
-            {
-                id: 'proposal-keputusan',
-                label: 'Keputusan yang dimohonkan',
-                initialValue: 'Belum dirinci dalam draf proposal. Lengkapi hal yang perlu disetujui pimpinan, termasuk tanggal pelaksanaan, ketentuan usia, sumber dukungan, dan anggaran.'
-            },
-            {
-                id: 'proposal-penutup',
-                label: 'Penutup dan pengesahan',
-                initialValue: 'Draf mengharapkan peran serta semua pihak untuk menyukseskan kegiatan MQK PCNU Kota Salatiga Tahun 2026 agar memberi kemanfaatan dan kemaslahatan.\n\nKetua panitia: Gus Hafidzin, S.E.\nSekretaris: Gunawan Aji Laksono, M.A.\nMengetahui, Ketua Tanfidziyah PCNU Kota Salatiga: Drs. M. Muslikh, M.M.\n\nPeriksa kembali penulisan nama, jabatan, serta tahun pada blok tanda tangan di dokumen sumber.'
-            }
         ];
 
         async function loadDataPanitia() {
@@ -494,6 +465,7 @@
                     <strong>${escapeHtml(field.label)}</strong>
                     ${field.id === 'proposal-jadwal' ? '<span class="proposal-field-hint">Satu baris per kegiatan, pisahkan waktu, acara, dan pengisi dengan tanda |.</span>' : ''}
                     ${field.id === 'proposal-anggaran' ? '<span class="proposal-field-hint">Satu baris per kebutuhan. Pisahkan kebutuhan, volume, satuan, harga satuan, dan jumlah dengan tanda |. Total dihitung dari kolom jumlah.</span>' : ''}
+                    ${['branch', 'participants', 'committee', 'judges', 'fields'].includes(field.format) ? `<span class="proposal-field-hint">${escapeHtml(petunjukFormatProposal(field.format))}</span>` : ''}
                     <textarea id="${field.id}" rows="${Math.min(16, Math.max(5, (String(field.initialValue || '').match(/\n/g) || []).length + 2))}" data-proposal-field="${field.id}" placeholder="Belum diisi">${escapeHtml(
                         Object.prototype.hasOwnProperty.call(draft, field.id) ? draft[field.id] : field.initialValue || ''
                     )}</textarea>
@@ -531,20 +503,66 @@
             }).format(amount)}`;
         }
 
+        function petunjukFormatProposal(format) {
+            const hints = {
+                fields: 'Satu baris per label, pisahkan label dan isi dengan tanda |.',
+                branch: 'Satu baris per cabang: Marhalah | Majelis | Kitab | Materi.',
+                participants: 'Satu baris per ketentuan: Label | Keterangan.',
+                committee: 'Satu baris per jabatan/seksi: Jabatan | Nama atau penanggung jawab.',
+                judges: 'Satu baris per cabang: Marhalah | Kitab | Nama juri.'
+            };
+            return hints[format] || 'Satu baris untuk setiap butir.';
+        }
+
+        function parseBarisProposal(value, minimumCells) {
+            return String(value || '').split(/\r?\n/)
+                .map(line => line.split('|').map(cell => cell.trim()))
+                .filter(cells => cells.length >= minimumCells && cells.some(Boolean));
+        }
+
         function renderIsiProposal(field, value) {
-            if (field.id === 'proposal-anggaran') {
-                const rows = String(value || '').split(/\r?\n/).slice(1).map(line => line.split('|').map(cell => cell.trim()))
-                    .filter(cells => cells.length >= 5 && cells.some(Boolean) && !/^total\b/i.test(cells[0]));
+            if (field.format === 'budget') {
+                const rows = parseBarisProposal(String(value || '').split(/\r?\n/).slice(1).join('\n'), 5)
+                    .filter(cells => !/^total\b/i.test(cells[0]));
                 if (!rows.length) return '<span class="proposal-not-filled">Belum diisi</span>';
                 return `<table class="proposal-presentation-table"><thead><tr><th>Kebutuhan</th><th>Vol.</th><th>Satuan</th><th>Harga satuan</th><th>Jumlah</th></tr></thead><tbody>${rows.map(cells => `
                     <tr>${cells.slice(0, 5).map(cell => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>
                 `).join('')}</tbody><tfoot><tr><th colspan="4">Jumlah otomatis dari rincian</th><th>${escapeHtml(formatRupiah(hitungTotalAnggaran(value)).replace('Jumlah otomatis dari rincian: ', ''))}</th></tr></tfoot></table>`;
             }
             if (field.id === 'proposal-rencana') {
-                const rows = String(value || '').split(/\r?\n/).map(line => line.split('|').map(cell => cell.trim())).filter(cells => cells.length >= 3 && cells.some(Boolean));
+                const rows = parseBarisProposal(value, 3);
                 if (!rows.length) return '<span class="proposal-not-filled">Belum diisi</span>';
                 return `<table class="proposal-presentation-table schedule-table"><thead><tr><th>Waktu</th><th>Kegiatan</th><th>Pengisi</th></tr></thead><tbody>${rows.map(cells => `
                     <tr>${cells.slice(0, 3).map(cell => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>
+                `).join('')}</tbody></table>`;
+            }
+            if (field.format === 'fields' || field.format === 'participants') {
+                const rows = parseBarisProposal(value, 2);
+                if (!rows.length) return '<span class="proposal-not-filled">Belum diisi</span>';
+                return `<div class="proposal-fact-grid">${rows.map(([label, detail]) => `
+                    <div class="proposal-fact"><span>${escapeHtml(label)}</span><strong>${escapeHtml(detail)}</strong></div>
+                `).join('')}</div>`;
+            }
+            if (field.format === 'branch') {
+                const rows = parseBarisProposal(value, 4);
+                if (!rows.length) return '<span class="proposal-not-filled">Belum diisi</span>';
+                const groups = new Map();
+                rows.forEach(([marhalah, majelis, kitab, materi]) => {
+                    if (!groups.has(marhalah)) groups.set(marhalah, []);
+                    groups.get(marhalah).push({ majelis, kitab, materi });
+                });
+                return `<div class="proposal-branch-grid">${[...groups.entries()].map(([marhalah, cabang]) => `
+                    <section class="proposal-branch-group"><h2>${escapeHtml(marhalah)}</h2><div class="proposal-branch-cards">${cabang.map(item => `
+                        <article class="proposal-branch-card"><span>${escapeHtml(item.majelis)}</span><strong>${escapeHtml(item.kitab)}</strong><small>${escapeHtml(item.materi)}</small></article>
+                    `).join('')}</div></section>
+                `).join('')}</div>`;
+            }
+            if (field.format === 'committee' || field.format === 'judges') {
+                const rows = parseBarisProposal(value, 2);
+                if (!rows.length) return '<span class="proposal-not-filled">Belum diisi</span>';
+                const headings = field.format === 'judges' ? ['Marhalah', 'Kitab', 'Nama juri'] : ['Jabatan / seksi', 'Penanggung jawab'];
+                return `<table class="proposal-presentation-table"><thead><tr>${headings.map(heading => `<th>${heading}</th>`).join('')}</tr></thead><tbody>${rows.map(cells => `
+                    <tr>${cells.slice(0, headings.length).map(cell => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>
                 `).join('')}</tbody></table>`;
             }
             return String(value || '').trim()
@@ -611,6 +629,7 @@
                         <p class="presentation-kicker">BAHAN PEMBAHASAN · DRAFT LOKAL</p>
                         <h1>${escapeHtml(field.label)}</h1>
                         <section class="proposal-display-field proposal-featured"><p>${displayValue}</p></section>
+                        ${field.id === 'proposal-waktu-tempat' || field.id === 'proposal-peserta' ? '<p class="proposal-conflict-note">Periksa perbedaan tanggal acara dan ketentuan usia antara draf proposal dan konfigurasi web sebelum presentasi.</p>' : ''}
                         <p class="presentation-proposal-intro">Isian proposal dikelola di bagian "Isian Proposal Kegiatan" pada halaman panitia, di luar mode presentasi.</p>
                         <p class="presentation-local-note">Draft hanya tersimpan di browser/perangkat ini; belum tersimpan di Supabase atau dibagikan. Anggaran dan keputusan belum dianggap disetujui.</p>
                     </article>`;
