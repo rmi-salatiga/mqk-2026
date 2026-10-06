@@ -26,149 +26,106 @@
     </nav>
 
     <div class="container mb-5">
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card shadow border-primary">
-                    <div class="card-body">
-                        <h6 class="text-muted">Total Seluruh Peserta</h6>
-                        <h3 class="fw-bold text-primary" id="stat-total-peserta">0</h3>
+        <div class="accordion admin-accordion" id="admin-panel">
+            <section class="accordion-item admin-accordion-item">
+                <h2 class="accordion-header" id="heading-ringkasan">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-ringkasan" aria-expanded="true" aria-controls="collapse-ringkasan">
+                        Ringkasan Verifikasi & Kehadiran
+                    </button>
+                </h2>
+                <div id="collapse-ringkasan" class="accordion-collapse collapse show" aria-labelledby="heading-ringkasan" data-bs-parent="#admin-panel">
+                    <div class="accordion-body">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4"><div class="card h-100 border-primary"><div class="card-body"><h6 class="text-muted">Total Peserta</h6><h3 class="fw-bold text-primary mb-0" id="stat-total-peserta">0</h3></div></div></div>
+                            <div class="col-md-4"><div class="card h-100 border-success"><div class="card-body"><h6 class="text-muted">Pesantren Terdaftar</h6><h3 class="fw-bold text-success mb-0" id="stat-total-pesantren">0</h3></div></div></div>
+                            <div class="col-md-4"><div class="card h-100 border-warning"><div class="card-body"><h6 class="text-muted">Pelaksanaan</h6><p class="mb-0 fw-bold text-dark" id="event-info">Memuat informasi acara...</p></div></div></div>
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3"><div class="card h-100 border-success"><div class="card-body"><h6 class="text-muted">Peserta Valid</h6><h3 class="fw-bold text-success mb-0" id="stat-peserta-valid">0</h3></div></div></div>
+                            <div class="col-md-3"><div class="card h-100 border-warning"><div class="card-body"><h6 class="text-muted">Menunggu Verifikasi</h6><h3 class="fw-bold text-warning mb-0" id="stat-peserta-pending">0</h3></div></div></div>
+                            <div class="col-md-3"><div class="card h-100 border-primary"><div class="card-body"><h6 class="text-muted">Sudah Hadir</h6><h3 class="fw-bold text-primary mb-0" id="stat-peserta-hadir">0</h3></div></div></div>
+                            <div class="col-md-3"><div class="card h-100 border-secondary"><div class="card-body"><h6 class="text-muted">Belum Hadir</h6><h3 class="fw-bold text-secondary mb-0" id="stat-peserta-belum-hadir">0</h3></div></div></div>
+                        </div>
+                        <div class="card branch-summary-card">
+                            <div class="card-header"><h5 class="mb-0">Ringkasan per Cabang</h5></div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped align-middle mb-0">
+                                        <thead class="table-success text-center"><tr><th>Cabang Lomba</th><th>Total</th><th>Valid</th><th>Menunggu</th><th>Hadir</th><th>Belum Hadir</th><th>Filter</th></tr></thead>
+                                        <tbody id="tabel-ringkasan-cabang"><tr><td colspan="7" class="text-center text-muted">Memuat ringkasan...</td></tr></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow border-success">
-                    <div class="card-body">
-                        <h6 class="text-muted">Pondok Pesantren Terdaftar</h6>
-                        <h3 class="fw-bold text-success" id="stat-total-pesantren">0</h3>
+            </section>
+
+            <section class="accordion-item admin-accordion-item">
+                <h2 class="accordion-header" id="heading-verifikasi">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-verifikasi" aria-expanded="false" aria-controls="collapse-verifikasi">
+                        Verifikasi Data & Berkas Peserta
+                    </button>
+                </h2>
+                <div id="collapse-verifikasi" class="accordion-collapse collapse" aria-labelledby="heading-verifikasi" data-bs-parent="#admin-panel">
+                    <div class="accordion-body">
+                        <div class="card pesantren-summary-card mb-4">
+                            <div class="card-header"><h5 class="mb-0"><span class="summary-icon">🏫</span> Rekap Data Pesantren <span class="badge summary-count" id="summary-count-pesantren">0 pesantren</span></h5></div>
+                            <div class="card-body summary-panel-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped align-middle mb-0">
+                                        <thead class="table-success text-center"><tr><th>No</th><th>Nama Pesantren</th><th>NSP</th><th>Pengasuh</th><th>Alamat</th><th>Kontak Admin</th><th>Jumlah Peserta</th></tr></thead>
+                                        <tbody id="tabel-pesantren-body"><tr><td colspan="7" class="text-center text-muted">Memuat rekap pesantren...</td></tr></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card verification-card">
+                            <div class="card-header"><h5 class="mb-0">Daftar Peserta & Berkas Verifikasi</h5></div>
+                            <div class="card-body">
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-3"><label class="form-label small fw-bold" for="filter-pesantren">Asal Pesantren</label><select id="filter-pesantren" class="form-select form-select-sm"><option value="">Semua Pesantren</option></select></div>
+                                    <div class="col-md-2"><label class="form-label small fw-bold" for="filter-jk">L/P</label><select id="filter-jk" class="form-select form-select-sm"><option value="">Semua</option><option value="Putra">Putra</option><option value="Putri">Putri</option></select></div>
+                                    <div class="col-md-3"><label class="form-label small fw-bold" for="filter-kitab">Cabang Lomba</label><select id="filter-kitab" class="form-select form-select-sm"><option value="">Semua Cabang</option></select></div>
+                                    <div class="col-md-2"><label class="form-label small fw-bold" for="filter-kehadiran">Kehadiran</label><select id="filter-kehadiran" class="form-select form-select-sm"><option value="">Semua</option><option value="Hadir">Hadir</option><option value="Belum Hadir">Belum Hadir</option></select></div>
+                                    <div class="col-md-2"><label class="form-label small fw-bold" for="sort-peserta">Urutkan</label><select id="sort-peserta" class="form-select form-select-sm"><option value="default">Urutan Data</option><option value="pesantren-asc">Pesantren A-Z</option><option value="pesantren-desc">Pesantren Z-A</option><option value="jk-asc">L/P A-Z</option><option value="kitab-asc">Cabang A-Z</option><option value="aksi">Pending lebih dulu</option></select></div>
+                                </div>
+                                <div id="attendance-schema-warning" class="alert alert-warning py-2 d-none" role="status"></div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped align-middle">
+                                        <thead class="table-success text-center"><tr><th>No</th><th>Foto</th><th>Asal Pesantren</th><th>Kontak</th><th>Nama Santri</th><th>L/P</th><th id="age-heading">Umur</th><th>Cabang Kitab</th><th>KTP/KK</th><th>Status</th><th>Kehadiran</th><th>Aksi</th></tr></thead>
+                                        <tbody id="tabel-panitia-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow border-warning">
-                    <div class="card-body">
-                        <h6 class="text-muted">Pelaksanaan Lomba</h6>
-                        <p class="mb-0 fw-bold text-dark" id="event-info">Memuat informasi acara...</p>
+            </section>
+
+            <section class="accordion-item admin-accordion-item">
+                <h2 class="accordion-header" id="heading-proposal">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-proposal" aria-expanded="false" aria-controls="collapse-proposal">
+                        Isian Proposal Kegiatan
+                    </button>
+                </h2>
+                <div id="collapse-proposal" class="accordion-collapse collapse" aria-labelledby="heading-proposal" data-bs-parent="#admin-panel">
+                    <div class="accordion-body">
+                        <div class="alert alert-info">
+                            Isian ini merupakan draft lokal di browser/perangkat ini, bukan data Supabase dan bukan persetujuan resmi. Anggaran dan keputusan tetap perlu dibahas serta disahkan.
+                        </div>
+                        <div class="proposal-edit-grid">
+                            <label class="proposal-edit-field" for="proposal-tujuan"><strong>Tujuan kegiatan</strong><textarea id="proposal-tujuan" data-proposal-field="proposal-tujuan" placeholder="Belum diisi"></textarea></label>
+                            <label class="proposal-edit-field" for="proposal-rencana"><strong>Rencana pelaksanaan</strong><textarea id="proposal-rencana" data-proposal-field="proposal-rencana" placeholder="Belum diisi"></textarea></label>
+                            <label class="proposal-edit-field" for="proposal-kebutuhan"><strong>Kebutuhan dan dukungan</strong><textarea id="proposal-kebutuhan" data-proposal-field="proposal-kebutuhan" placeholder="Belum diisi"></textarea></label>
+                            <label class="proposal-edit-field" for="proposal-anggaran"><strong>Rencana anggaran</strong><textarea id="proposal-anggaran" data-proposal-field="proposal-anggaran" placeholder="Belum diisi"></textarea></label>
+                            <label class="proposal-edit-field" for="proposal-keputusan"><strong>Keputusan yang dimohonkan</strong><textarea id="proposal-keputusan" data-proposal-field="proposal-keputusan" placeholder="Belum diisi"></textarea></label>
+                        </div>
+                        <p id="proposal-save-status" class="proposal-save-status mb-0">Draft hanya tersimpan di browser/perangkat ini.</p>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card border-success h-100"><div class="card-body">
-                    <h6 class="text-muted">Peserta Valid</h6><h3 class="fw-bold text-success mb-0" id="stat-peserta-valid">0</h3>
-                </div></div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-warning h-100"><div class="card-body">
-                    <h6 class="text-muted">Menunggu Verifikasi</h6><h3 class="fw-bold text-warning mb-0" id="stat-peserta-pending">0</h3>
-                </div></div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-primary h-100"><div class="card-body">
-                    <h6 class="text-muted">Sudah Hadir</h6><h3 class="fw-bold text-primary mb-0" id="stat-peserta-hadir">0</h3>
-                </div></div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-secondary h-100"><div class="card-body">
-                    <h6 class="text-muted">Belum Hadir</h6><h3 class="fw-bold text-secondary mb-0" id="stat-peserta-belum-hadir">0</h3>
-                </div></div>
-            </div>
-        </div>
-
-        <div class="card shadow mb-4 branch-summary-card">
-            <div class="card-header py-3">
-                <h5 class="mb-0">Ringkasan Verifikasi & Kehadiran per Cabang</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped align-middle mb-0">
-                        <thead class="table-success text-center">
-                            <tr>
-                                <th>Cabang Lomba</th>
-                                <th>Total</th>
-                                <th>Valid</th>
-                                <th>Menunggu</th>
-                                <th>Hadir</th>
-                                <th>Belum Hadir</th>
-                                <th>Filter</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabel-ringkasan-cabang">
-                            <tr><td colspan="7" class="text-center text-muted">Memuat ringkasan...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="card shadow mb-4 pesantren-summary-card">
-            <div class="card-header py-3">
-                <button class="btn btn-link text-decoration-none text-secondary fw-bold w-100 text-start p-0 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#panel-rekap-pesantren" aria-expanded="false" aria-controls="panel-rekap-pesantren">
-                    <span><span class="summary-icon">🏫</span> Rekap Data Pesantren <span class="badge summary-count" id="summary-count-pesantren">0 pesantren</span></span>
-                    <span aria-hidden="true">⌄</span>
-                </button>
-            </div>
-            <div id="panel-rekap-pesantren" class="collapse">
-                <div class="card-body summary-panel-body">
-                    <div class="table-responsive">
-                    <table class="table table-bordered table-striped align-middle mb-0">
-                        <thead class="table-success text-center">
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Pesantren</th>
-                                <th>NSP</th>
-                                <th>Pengasuh</th>
-                                <th>Alamat</th>
-                                <th>Kontak Admin</th>
-                                <th>Jumlah Peserta</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabel-pesantren-body">
-                            <tr><td colspan="7" class="text-center text-muted">Memuat rekap pesantren...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="card shadow verification-card">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Verifikasi Data & Berkas Peserta</h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-2 mb-3">
-                    <div class="col-md-3"><label class="form-label small fw-bold" for="filter-pesantren">Asal Pesantren</label><select id="filter-pesantren" class="form-select form-select-sm"><option value="">Semua Pesantren</option></select></div>
-                    <div class="col-md-2"><label class="form-label small fw-bold" for="filter-jk">L/P</label><select id="filter-jk" class="form-select form-select-sm"><option value="">Semua</option><option value="Putra">Putra</option><option value="Putri">Putri</option></select></div>
-                    <div class="col-md-3"><label class="form-label small fw-bold" for="filter-kitab">Cabang Lomba</label><select id="filter-kitab" class="form-select form-select-sm"><option value="">Semua Cabang</option></select></div>
-                    <div class="col-md-2"><label class="form-label small fw-bold" for="filter-kehadiran">Kehadiran</label><select id="filter-kehadiran" class="form-select form-select-sm"><option value="">Semua</option><option value="Hadir">Hadir</option><option value="Belum Hadir">Belum Hadir</option></select></div>
-                    <div class="col-md-2"><label class="form-label small fw-bold" for="sort-peserta">Urutkan</label><select id="sort-peserta" class="form-select form-select-sm"><option value="default">Urutan Data</option><option value="pesantren-asc">Asal Pesantren (A-Z)</option><option value="pesantren-desc">Asal Pesantren (Z-A)</option><option value="jk-asc">L/P (A-Z)</option><option value="kitab-asc">Cabang Lomba (A-Z)</option><option value="aksi">Aksi (Pending lebih dulu)</option></select></div>
-                </div>
-                <div id="attendance-schema-warning" class="alert alert-warning py-2 d-none" role="status"></div>
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped align-middle">
-                        <thead class="table-success text-center">
-                            <tr>
-                                <th>No</th>
-                                <th>Foto</th>
-                                <th>Asal Pesantren</th>
-                                <th>Kontak Pesantren</th>
-                                <th>Nama Santri</th>
-                                <th>L/P</th>
-                                <th id="age-heading">Umur</th>
-                                <th>Cabang Kitab</th>
-                                <th>KTP/KK</th>
-                                <th>Status</th>
-                                <th>Kehadiran</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabel-panitia-body">
-                            <!-- Dimuat via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            </section>
         </div>
     </div>
 
@@ -468,6 +425,18 @@
             }
         }
 
+        function inisialisasiFormProposal() {
+            const draft = ambilDraftProposal();
+            proposalFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                input.value = draft[field.id] || '';
+                input.addEventListener('input', event => simpanDraftProposal(field.id, event.target.value));
+            });
+            if (Object.values(draft).some(Boolean)) {
+                document.getElementById('proposal-save-status').innerText = 'Draft proposal lokal berhasil dimuat dari browser/perangkat ini.';
+            }
+        }
+
         function renderSlidesPresentasi() {
             const valid = semuaDataPeserta.filter(item => item.status_verifikasi === 'Valid').length;
             const pending = semuaDataPeserta.length - valid;
@@ -518,20 +487,19 @@
                         `).join('') || '<p>Belum ada data peserta untuk ditampilkan.</p>'}
                     </div>
                 </article>`,
-                `<article class="presentation-slide proposal-slide">
-                    <p class="presentation-kicker">BAHAN PEMBAHASAN</p>
-                    <h1>Rencana Kegiatan & Anggaran</h1>
-                    <p class="presentation-proposal-intro">Lengkapi poin proposal untuk dibahas bersama pimpinan. Kolom kosong berarti belum diisi, bukan angka atau keputusan yang telah disetujui.</p>
-                    <div class="proposal-grid">
-                        ${proposalFields.map(field => `
-                            <label class="proposal-field" for="${field.id}">
-                                <strong>${field.label}</strong>
-                                <textarea id="${field.id}" data-proposal-field="${field.id}" placeholder="Belum diisi">${escapeHtml(draft[field.id] || '')}</textarea>
-                            </label>
-                        `).join('')}
-                    </div>
-                    <p id="proposal-save-status" class="presentation-local-note">Draft disimpan hanya di browser/perangkat ini; belum tersimpan di Supabase dan belum dibagikan ke panitia lain.</p>
-                </article>`
+                ...proposalFields.map(field => {
+                    const value = String(draft[field.id] || '').trim();
+                    const displayValue = value
+                        ? escapeHtml(value).replace(/\r?\n/g, '<br>')
+                        : '<span class="proposal-not-filled">Belum diisi</span>';
+                    return `<article class="presentation-slide proposal-slide">
+                        <p class="presentation-kicker">BAHAN PEMBAHASAN · DRAFT LOKAL</p>
+                        <h1>${escapeHtml(field.label)}</h1>
+                        <section class="proposal-display-field proposal-featured"><p>${displayValue}</p></section>
+                        <p class="presentation-proposal-intro">Isian proposal dikelola di bagian "Isian Proposal Kegiatan" pada halaman panitia, di luar mode presentasi.</p>
+                        <p class="presentation-local-note">Draft hanya tersimpan di browser/perangkat ini; belum tersimpan di Supabase atau dibagikan. Anggaran dan keputusan belum dianggap disetujui.</p>
+                    </article>`;
+                })
             ];
 
             const container = document.getElementById('presentation-slides');
@@ -541,9 +509,6 @@
             document.getElementById('presentation-slide-count').innerText = `${slidePresentasiAktif + 1} / ${slides.length}`;
             document.getElementById('presentation-prev').disabled = slidePresentasiAktif === 0;
             document.getElementById('presentation-next').disabled = slidePresentasiAktif === slides.length - 1;
-            container.querySelectorAll('[data-proposal-field]').forEach(field => {
-                field.addEventListener('input', event => simpanDraftProposal(event.target.dataset.proposalField, event.target.value));
-            });
         }
 
         function bukaModePresentasi() {
@@ -583,6 +548,8 @@
             if (event.key === 'ArrowRight' || event.key === 'PageDown') pindahSlide(1);
             if (event.key === 'ArrowLeft' || event.key === 'PageUp') pindahSlide(-1);
         });
+
+        inisialisasiFormProposal();
 
         async function ubahStatus(id, statusBaru) {
             const { error } = await _supabase.from('peserta').update({ status_verifikasi: statusBaru }).eq('id', id);

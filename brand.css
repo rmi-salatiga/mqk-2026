@@ -234,6 +234,75 @@ body {
     font-weight: 700;
 }
 
+.admin-accordion {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.admin-accordion-item {
+    overflow: hidden;
+    border: 1px solid var(--mqk-border) !important;
+    border-radius: 0.9rem !important;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(24, 59, 61, 0.06);
+}
+
+.admin-accordion-item .accordion-button {
+    padding: 1.1rem 1.25rem;
+    color: var(--mqk-teal-dark);
+    background: linear-gradient(100deg, #e8f5f3, #fff);
+    font-size: 1.05rem;
+    font-weight: 750;
+    box-shadow: none;
+}
+
+.admin-accordion-item .accordion-button:not(.collapsed) {
+    color: #fff;
+    background: linear-gradient(100deg, var(--mqk-teal), var(--mqk-teal-dark));
+}
+
+.admin-accordion-item .accordion-button:not(.collapsed)::after {
+    filter: brightness(0) invert(1);
+}
+
+.admin-accordion-item .accordion-body {
+    padding: clamp(0.8rem, 2vw, 1.5rem);
+}
+
+.proposal-edit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.proposal-edit-field {
+    display: grid;
+    align-content: start;
+    gap: 0.45rem;
+    color: var(--mqk-teal-dark);
+}
+
+.proposal-edit-field textarea {
+    width: 100%;
+    min-height: 115px;
+    padding: 0.8rem;
+    border: 1px solid var(--mqk-border);
+    border-radius: 0.65rem;
+    color: var(--mqk-ink);
+    resize: vertical;
+}
+
+.proposal-edit-field textarea:focus {
+    border-color: var(--mqk-teal);
+    outline: 3px solid rgba(8, 127, 131, 0.15);
+}
+
+.proposal-save-status {
+    margin-top: 0.8rem;
+    color: var(--mqk-muted);
+    font-size: 0.86rem;
+}
+
 .presentation-open {
     overflow: hidden;
 }
@@ -423,31 +492,47 @@ body {
     color: #506a6b;
 }
 
-.proposal-grid {
+.proposal-display-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.9rem;
     margin-top: 1rem;
 }
 
-.proposal-field {
-    display: grid;
-    gap: 0.4rem;
-    color: var(--mqk-teal-dark);
-    font-weight: 700;
-}
-
-.proposal-field textarea {
-    min-height: 100px;
-    padding: 0.75rem;
-    border: 1px solid var(--mqk-border);
+.proposal-display-field {
+    min-height: 125px;
+    padding: 1rem;
+    border-left: 4px solid var(--mqk-gold);
     border-radius: 0.65rem;
-    resize: vertical;
+    background: #fff;
 }
 
-.proposal-field textarea:focus {
-    border-color: var(--mqk-teal);
-    outline: 3px solid rgba(8, 127, 131, 0.15);
+.proposal-display-field h2 {
+    margin: 0 0 0.6rem;
+    color: var(--mqk-teal-dark);
+    font-size: 1rem;
+    font-weight: 750;
+}
+
+.proposal-display-field p {
+    margin: 0;
+    color: #385556;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.proposal-featured {
+    display: flex;
+    min-height: min(34vh, 260px);
+    align-items: center;
+    padding: clamp(1.2rem, 4vw, 3rem);
+    font-size: clamp(1.15rem, 2.3vw, 1.8rem);
+    line-height: 1.5;
+}
+
+.proposal-not-filled {
+    color: var(--mqk-muted);
+    font-style: italic;
 }
 
 .presentation-local-note {
@@ -472,12 +557,13 @@ body {
         font-size: 0.75rem;
     }
 
-    .proposal-grid {
+    .proposal-edit-grid,
+    .proposal-display-grid {
         grid-template-columns: 1fr;
     }
 
-    .proposal-field textarea {
-        min-height: 72px;
+    .proposal-edit-field textarea {
+        min-height: 85px;
     }
 }
 
