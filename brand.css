@@ -297,6 +297,18 @@ body {
     outline: 3px solid rgba(8, 127, 131, 0.15);
 }
 
+.proposal-field-hint {
+    color: var(--mqk-muted);
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+.proposal-budget-total {
+    color: var(--mqk-teal-dark);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
 .proposal-save-status {
     margin-top: 0.8rem;
     color: var(--mqk-muted);
@@ -519,6 +531,37 @@ body {
     color: #385556;
     white-space: normal;
     overflow-wrap: anywhere;
+}
+
+.proposal-presentation-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    color: var(--mqk-ink);
+    font-size: clamp(0.66rem, 1.05vw, 0.92rem);
+    line-height: 1.25;
+}
+
+.proposal-presentation-table th,
+.proposal-presentation-table td {
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--mqk-border);
+    text-align: left;
+    vertical-align: top;
+}
+
+.proposal-presentation-table thead th {
+    color: #fff;
+    background: var(--mqk-teal);
+}
+
+.proposal-presentation-table tfoot th {
+    color: var(--mqk-teal-dark);
+    background: #e8f5f3;
+}
+
+.schedule-table {
+    font-size: clamp(0.75rem, 1.25vw, 1rem);
 }
 
 .proposal-featured {
