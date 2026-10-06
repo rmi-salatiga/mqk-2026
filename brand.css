@@ -220,6 +220,20 @@ body {
     font-weight: 700;
 }
 
+.branch-summary-card {
+    border-top: 4px solid var(--mqk-teal);
+}
+
+.branch-summary-card .card-header {
+    background: linear-gradient(100deg, #e8f5f3, #fff) !important;
+    border-bottom: 2px solid rgba(8, 127, 131, 0.24);
+}
+
+.branch-summary-card .card-header h5 {
+    color: var(--mqk-teal-dark);
+    font-weight: 700;
+}
+
 .card-header h5,
 .card-header h6 {
     color: var(--mqk-ink);

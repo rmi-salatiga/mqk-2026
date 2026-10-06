@@ -52,6 +52,55 @@
             </div>
         </div>
 
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card border-success h-100"><div class="card-body">
+                    <h6 class="text-muted">Peserta Valid</h6><h3 class="fw-bold text-success mb-0" id="stat-peserta-valid">0</h3>
+                </div></div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-warning h-100"><div class="card-body">
+                    <h6 class="text-muted">Menunggu Verifikasi</h6><h3 class="fw-bold text-warning mb-0" id="stat-peserta-pending">0</h3>
+                </div></div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-primary h-100"><div class="card-body">
+                    <h6 class="text-muted">Sudah Hadir</h6><h3 class="fw-bold text-primary mb-0" id="stat-peserta-hadir">0</h3>
+                </div></div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-secondary h-100"><div class="card-body">
+                    <h6 class="text-muted">Belum Hadir</h6><h3 class="fw-bold text-secondary mb-0" id="stat-peserta-belum-hadir">0</h3>
+                </div></div>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4 branch-summary-card">
+            <div class="card-header py-3">
+                <h5 class="mb-0">Ringkasan Verifikasi & Kehadiran per Cabang</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead class="table-success text-center">
+                            <tr>
+                                <th>Cabang Lomba</th>
+                                <th>Total</th>
+                                <th>Valid</th>
+                                <th>Menunggu</th>
+                                <th>Hadir</th>
+                                <th>Belum Hadir</th>
+                                <th>Filter</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-ringkasan-cabang">
+                            <tr><td colspan="7" class="text-center text-muted">Memuat ringkasan...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div class="card shadow mb-4 pesantren-summary-card">
             <div class="card-header py-3">
                 <button class="btn btn-link text-decoration-none text-secondary fw-bold w-100 text-start p-0 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#panel-rekap-pesantren" aria-expanded="false" aria-controls="panel-rekap-pesantren">
@@ -90,9 +139,11 @@
                 <div class="row g-2 mb-3">
                     <div class="col-md-3"><label class="form-label small fw-bold" for="filter-pesantren">Asal Pesantren</label><select id="filter-pesantren" class="form-select form-select-sm"><option value="">Semua Pesantren</option></select></div>
                     <div class="col-md-2"><label class="form-label small fw-bold" for="filter-jk">L/P</label><select id="filter-jk" class="form-select form-select-sm"><option value="">Semua</option><option value="Putra">Putra</option><option value="Putri">Putri</option></select></div>
-                    <div class="col-md-4"><label class="form-label small fw-bold" for="filter-kitab">Cabang Lomba</label><select id="filter-kitab" class="form-select form-select-sm"><option value="">Semua Cabang</option></select></div>
-                    <div class="col-md-3"><label class="form-label small fw-bold" for="sort-peserta">Urutkan</label><select id="sort-peserta" class="form-select form-select-sm"><option value="default">Urutan Data</option><option value="pesantren-asc">Asal Pesantren (A-Z)</option><option value="pesantren-desc">Asal Pesantren (Z-A)</option><option value="jk-asc">L/P (A-Z)</option><option value="kitab-asc">Cabang Lomba (A-Z)</option><option value="aksi">Aksi (Pending lebih dulu)</option></select></div>
+                    <div class="col-md-3"><label class="form-label small fw-bold" for="filter-kitab">Cabang Lomba</label><select id="filter-kitab" class="form-select form-select-sm"><option value="">Semua Cabang</option></select></div>
+                    <div class="col-md-2"><label class="form-label small fw-bold" for="filter-kehadiran">Kehadiran</label><select id="filter-kehadiran" class="form-select form-select-sm"><option value="">Semua</option><option value="Hadir">Hadir</option><option value="Belum Hadir">Belum Hadir</option></select></div>
+                    <div class="col-md-2"><label class="form-label small fw-bold" for="sort-peserta">Urutkan</label><select id="sort-peserta" class="form-select form-select-sm"><option value="default">Urutan Data</option><option value="pesantren-asc">Asal Pesantren (A-Z)</option><option value="pesantren-desc">Asal Pesantren (Z-A)</option><option value="jk-asc">L/P (A-Z)</option><option value="kitab-asc">Cabang Lomba (A-Z)</option><option value="aksi">Aksi (Pending lebih dulu)</option></select></div>
                 </div>
+                <div id="attendance-schema-warning" class="alert alert-warning py-2 d-none" role="status"></div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped align-middle">
                         <thead class="table-success text-center">
@@ -107,6 +158,7 @@
                                 <th>Cabang Kitab</th>
                                 <th>KTP/KK</th>
                                 <th>Status</th>
+                                <th>Kehadiran</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -128,6 +180,7 @@
         let semuaDataPeserta = [];
         let semuaDataPesantren = [];
         let dataPesertaTampil = [];
+        let attendanceFieldAvailable = false;
 
         async function loadDataPanitia() {
             const { data, error } = await _supabase
@@ -143,9 +196,23 @@
             }
 
             semuaDataPeserta = data || [];
+            const { error: attendanceSchemaError } = await _supabase
+                .from('peserta')
+                .select('status_kehadiran')
+                .limit(0);
+            attendanceFieldAvailable = !attendanceSchemaError;
+            const attendanceWarning = document.getElementById('attendance-schema-warning');
+            if (attendanceSchemaError) {
+                attendanceWarning.classList.remove('d-none');
+                attendanceWarning.innerText = `Pencatatan kehadiran belum aktif atau skemanya tidak dapat diperiksa: ${attendanceSchemaError.message}. Pastikan migration supabase/migrations/202610060001_add_attendance_status.sql sudah dijalankan pada Supabase.`;
+            } else {
+                attendanceWarning.classList.add('d-none');
+            }
+            document.getElementById('filter-kehadiran').disabled = !attendanceFieldAvailable;
             isiFilterPeserta();
             renderTabelPeserta();
             hitungStatistik(semuaDataPeserta);
+            renderRingkasanCabang(semuaDataPeserta);
             await loadRekapPesantren(semuaDataPeserta);
         }
 
@@ -160,18 +227,21 @@
                 pesantrenOptions.map(([id, nama]) => `<option value="${escapeHtml(id)}">${escapeHtml(nama)}</option>`).join('');
             const kitabOptions = [...new Set(semuaDataPeserta.map(item => item.kategori_kitab).filter(Boolean))].sort();
             kitabSelect.innerHTML = '<option value="">Semua Cabang</option>' +
-                kitabOptions.map(kitab => `<option value="${escapeHtml(kitab)}">${escapeHtml(kitab)}</option>`).join('');
+                kitabOptions.map(kitab => `<option value="${escapeHtml(kitab)}">${escapeHtml(kitab)}</option>`).join('') +
+                '<option value="__missing__">Cabang belum dipilih</option>';
         }
 
         function renderTabelPeserta() {
             const filterPesantren = document.getElementById('filter-pesantren').value;
             const filterJk = document.getElementById('filter-jk').value;
             const filterKitab = document.getElementById('filter-kitab').value;
+            const filterKehadiran = document.getElementById('filter-kehadiran').value;
             const sort = document.getElementById('sort-peserta').value;
             dataPesertaTampil = semuaDataPeserta.filter(item =>
                 (!filterPesantren || String(item.pesantren_id) === filterPesantren) &&
                 (!filterJk || item.jenis_kelamin === filterJk) &&
-                (!filterKitab || item.kategori_kitab === filterKitab)
+                (!filterKitab || (filterKitab === '__missing__' ? !item.kategori_kitab : item.kategori_kitab === filterKitab)) &&
+                (!filterKehadiran || (item.status_kehadiran || 'Belum Hadir') === filterKehadiran)
             );
             const namaPesantren = item => ((item.pesantren || {}).nama_pesantren || '').toLowerCase();
             const namaKitab = item => (item.kategori_kitab || '').toLowerCase();
@@ -188,9 +258,51 @@
             renderTabel(dataPesertaTampil);
         }
 
-        ['filter-pesantren', 'filter-jk', 'filter-kitab', 'sort-peserta'].forEach(id =>
+        ['filter-pesantren', 'filter-jk', 'filter-kitab', 'filter-kehadiran', 'sort-peserta'].forEach(id =>
             document.getElementById(id).addEventListener('change', renderTabelPeserta)
         );
+
+        function renderRingkasanCabang(data) {
+            const ringkasan = new Map();
+            data.forEach(item => {
+                const cabang = item.kategori_kitab || 'Cabang belum dipilih';
+                if (!ringkasan.has(cabang)) {
+                    ringkasan.set(cabang, { total: 0, valid: 0, pending: 0, hadir: 0, belumHadir: 0 });
+                }
+                const row = ringkasan.get(cabang);
+                row.total++;
+                if (item.status_verifikasi === 'Valid') row.valid++;
+                else row.pending++;
+                if (item.status_kehadiran === 'Hadir') row.hadir++;
+                else row.belumHadir++;
+            });
+
+            document.getElementById('tabel-ringkasan-cabang').innerHTML = [...ringkasan.entries()]
+                .sort(([a], [b]) => a.localeCompare(b, 'id'))
+                .map(([cabang, row]) => `
+                    <tr>
+                        <td>${escapeHtml(cabang)}</td>
+                        <td class="text-center">${row.total}</td>
+                        <td class="text-center">${row.valid}</td>
+                        <td class="text-center">${row.pending}</td>
+                        <td class="text-center">${attendanceFieldAvailable ? row.hadir : '-'}</td>
+                        <td class="text-center">${attendanceFieldAvailable ? row.belumHadir : '-'}</td>
+                        <td class="text-center"><button class="btn btn-sm btn-outline-success" data-branch="${escapeHtml(cabang === 'Cabang belum dipilih' ? '__missing__' : cabang)}">Tampilkan</button></td>
+                    </tr>
+                `).join('') || '<tr><td colspan="7" class="text-center text-muted">Belum ada data peserta.</td></tr>';
+        }
+
+        function filterCabang(cabang) {
+            const select = document.getElementById('filter-kitab');
+            select.value = cabang;
+            renderTabelPeserta();
+            document.querySelector('.verification-card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('tabel-ringkasan-cabang').addEventListener('click', event => {
+            const button = event.target.closest('button[data-branch]');
+            if (button) filterCabang(button.dataset.branch);
+        });
 
         async function loadRekapPesantren(peserta) {
             const { data, error } = await _supabase
@@ -235,7 +347,7 @@
             tbody.innerHTML = '';
 
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="text-center text-muted">Belum ada peserta terdaftar.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" class="text-center text-muted">Belum ada peserta terdaftar.</td></tr>`;
                 return;
             }
 
@@ -246,6 +358,12 @@
                 let statusBadge = item.status_verifikasi === 'Valid' 
                     ? '<span class="badge bg-success">Valid</span>' 
                     : '<span class="badge bg-warning text-dark">Pending</span>';
+                const statusKehadiran = item.status_kehadiran === 'Hadir';
+                const kehadiranBadge = statusKehadiran
+                    ? '<span class="badge bg-primary">Hadir</span>'
+                    : attendanceFieldAvailable
+                        ? '<span class="badge bg-secondary">Belum Hadir</span>'
+                        : '<span class="badge bg-light text-dark">Belum disiapkan</span>';
 
                 tbody.innerHTML += `
                     <tr>
@@ -259,8 +377,10 @@
                         <td>${item.kategori_kitab || '-'}</td>
                         <td class="text-center">${linkKtp}</td>
                         <td class="text-center">${statusBadge}</td>
+                        <td class="text-center">${kehadiranBadge}</td>
                         <td class="text-center">
                             <button class="btn btn-sm btn-success mb-1" onclick="ubahStatus(${item.id}, 'Valid')">Valid</button>
+                            <button class="btn btn-sm ${statusKehadiran ? 'btn-outline-primary' : 'btn-primary'} mb-1" onclick="ubahStatusKehadiran(${item.id}, '${statusKehadiran ? 'Belum Hadir' : 'Hadir'}')" ${attendanceFieldAvailable ? '' : 'disabled'}>${statusKehadiran ? 'Batalkan Hadir' : attendanceFieldAvailable ? 'Tandai Hadir' : 'Perlu setup DB'}</button>
                             <button class="btn btn-sm btn-danger mb-1" onclick="hapusPeserta(${item.id})">Hapus</button>
                         </td>
                     </tr>
@@ -293,12 +413,38 @@
             document.getElementById('stat-total-peserta').innerText = data.length;
             const uniquePesantren = new Set(data.map(item => item.pesantren_id));
             document.getElementById('stat-total-pesantren').innerText = uniquePesantren.size;
+            document.getElementById('stat-peserta-valid').innerText = data.filter(item => item.status_verifikasi === 'Valid').length;
+            document.getElementById('stat-peserta-pending').innerText = data.filter(item => item.status_verifikasi !== 'Valid').length;
+            document.getElementById('stat-peserta-hadir').innerText = attendanceFieldAvailable ? data.filter(item => item.status_kehadiran === 'Hadir').length : '-';
+            document.getElementById('stat-peserta-belum-hadir').innerText = attendanceFieldAvailable ? data.filter(item => item.status_kehadiran !== 'Hadir').length : '-';
         }
 
         async function ubahStatus(id, statusBaru) {
             const { error } = await _supabase.from('peserta').update({ status_verifikasi: statusBaru }).eq('id', id);
             if (!error) loadDataPanitia();
             else alert('Gagal memperbarui status: ' + error.message);
+        }
+
+        async function ubahStatusKehadiran(id, statusBaru) {
+            if (!attendanceFieldAvailable) return;
+            try {
+                const { error } = await _supabase.from('peserta').update({ status_kehadiran: statusBaru }).eq('id', id);
+                if (error) {
+                    const hint = error.code === '42703' || error.message.includes('status_kehadiran')
+                        ? ' Jalankan migration supabase/migrations/202610060001_add_attendance_status.sql pada Supabase terlebih dahulu.'
+                        : '';
+                    alert('Gagal menyimpan kehadiran: ' + error.message + hint);
+                    return;
+                }
+            } catch (error) {
+                alert('Gagal menyimpan kehadiran: ' + error.message);
+                return;
+            }
+            const peserta = semuaDataPeserta.find(item => String(item.id) === String(id));
+            if (peserta) peserta.status_kehadiran = statusBaru;
+            renderTabelPeserta();
+            hitungStatistik(semuaDataPeserta);
+            renderRingkasanCabang(semuaDataPeserta);
         }
 
         async function hapusPeserta(id) {
