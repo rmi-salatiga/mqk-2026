@@ -62,15 +62,14 @@
             </section>
 
             <section class="accordion-item admin-accordion-item">
-                <h2 class="accordion-header" id="heading-verifikasi">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-verifikasi" aria-expanded="false" aria-controls="collapse-verifikasi">
-                        Verifikasi Data & Berkas Peserta
+                <h2 class="accordion-header" id="heading-rekap-pesantren">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-rekap-pesantren" aria-expanded="false" aria-controls="collapse-rekap-pesantren">
+                        Rekap Data Pesantren <span class="badge summary-count ms-2" id="summary-count-pesantren">0 pesantren</span>
                     </button>
                 </h2>
-                <div id="collapse-verifikasi" class="accordion-collapse collapse" aria-labelledby="heading-verifikasi" data-bs-parent="#admin-panel">
+                <div id="collapse-rekap-pesantren" class="accordion-collapse collapse" aria-labelledby="heading-rekap-pesantren" data-bs-parent="#admin-panel">
                     <div class="accordion-body">
-                        <div class="card pesantren-summary-card mb-4">
-                            <div class="card-header"><h5 class="mb-0"><span class="summary-icon">🏫</span> Rekap Data Pesantren <span class="badge summary-count" id="summary-count-pesantren">0 pesantren</span></h5></div>
+                        <div class="card pesantren-summary-card">
                             <div class="card-body summary-panel-body">
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-striped align-middle mb-0">
@@ -80,7 +79,18 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </section>
 
+            <section class="accordion-item admin-accordion-item">
+                <h2 class="accordion-header" id="heading-daftar-peserta">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-daftar-peserta" aria-expanded="false" aria-controls="collapse-daftar-peserta">
+                        Daftar Peserta & Berkas Verifikasi
+                    </button>
+                </h2>
+                <div id="collapse-daftar-peserta" class="accordion-collapse collapse" aria-labelledby="heading-daftar-peserta" data-bs-parent="#admin-panel">
+                    <div class="accordion-body">
                         <div class="card verification-card">
                             <div class="card-header"><h5 class="mb-0">Daftar Peserta & Berkas Verifikasi</h5></div>
                             <div class="card-body">
@@ -303,6 +313,7 @@
             const select = document.getElementById('filter-kitab');
             select.value = cabang;
             renderTabelPeserta();
+            bootstrap.Collapse.getOrCreateInstance(document.getElementById('collapse-daftar-peserta')).show();
             document.querySelector('.verification-card').scrollIntoView({ behavior: 'smooth' });
         }
 
